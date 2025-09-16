@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約カレンダー</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    .day {
+      padding: 10px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+    .day:hover {
+      background-color: #eef;
+    }
+    .selected {
+      background-color: #88f;
+      color: white;
+    }
+    .today {
+      background-color: #f88;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>予約カレンダー</h1>
+  <div id="calendar" class="calendar"></div>
+  <p id="selected-date">日付を選択してください</p>
+
+  <script>
+    const calendar = document.getElementById('calendar');
+    const selectedDateDisplay = document.getElementById('selected-date');
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const todayDate = today.getDate();
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDay = firstDay.getDay();
+
+    for (let i = 0; i < startDay; i++) {
+      const empty = document.createElement('div');
+      calendar.appendChild(empty);
+    }
+
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const day = document.createElement('div');
+      day.textContent = d;
+      day.className = 'day';
+      
+      if (d === todayDate) {
+        day.classList.add('today'); // PC日付と一致すれば色付け
+      }
+
+      day.addEventListener('click', () => {
+        document.querySelectorAll('.day').forEach(el => el.classList.remove('selected'));
+        day.classList.add('selected');
+        selectedDateDisplay.textContent = `${year}年${month + 1}月${d}日 を選択しました`;
+      });
+
+      calendar.appendChild(day);
+    }
+  </script>
+</body>
+</html>
