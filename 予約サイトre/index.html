@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約カレンダー</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    .day {
+      padding: 10px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+    .day:hover {
+      background-color: #eef;
+    }
+    .selected {
+      background-color: #88f;
+      color: white;
+    }
+    .today {
+      background-color: #f88;
+      color: white;
+    }
+    .reserved {
+      background-color: #aaa;
+      color: white;
+      cursor: not-allowed;
+    }
+    #reservation-form {
+      display: none;
+      margin-top: 20px;
+    }
+    input, select, textarea {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>予約カレンダー</h1>
+  <div id="calendar" class="calendar"></div>
+  <p id="selected-date">日付を選択してください</p>
+
+  <!-- 予約フォーム -->
+  <div id="reservation-form">
+    <form id="form">
+      <input type="text" id="company" placeholder="企業名" required><br>
+      <label>時間帯:</label>
+      <select id="time" required>
+        <option value="">選択してください</option>
+        <option value="午前">10:00〜12:00（午前）</option>
+        <option value="午後">14:00〜17:00（午後）</option>
+      </select><br>
+      <label>匿名で予約：</label><input type="checkbox" id="anonymous"><br>
+      <label>カテゴリ:</label>
+      <select id="category" required>
+        <option value="">選択してください</option>
+        <option value="ゲーム">ゲーム</option>
+        <option value="CG">CG</option>
+        <option value="両方">両方</option>
+      </select><br>
+      <textarea id="note" rows="3" cols="30" placeholder="備考"></textarea><br>
+      <button type="submit">予約する</button>
+    </form>
+  </div>
+
+  <script>
+    const calendar = document.getElementById('calendar');
+    const selectedDateDisplay = document.getElementById('selected-date');
+    const reservationForm = document.getElementById('reservation-form');
+    const form = document.getElementById('form');
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const todayDate = today.getDate();
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDay = firstDay.getDay();
+
+    let selectedDay = null;
+
+    for (let i = 0; i < startDay; i++) {
+      const empty = document.createElement('div');
+      calendar.appendChild(empty);
+    }
+
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const day = document.createElement('div');
+      day.textContent = d;
+      day.className = 'day';
+
+      if (d === todayDate) {
+        day.classList.add('today');
+      }
+
+      day.addEventListener('click', () => {
+        if (day.classList.contains('reserved')) return;
+        document.querySelectorAll('.day').forEach(el => el.classList.remove('selected'));
+        day.classList.add('selected');
+        selectedDateDisplay.textContent = `${year}年${month + 1}月${d}日 を選択しました`;
+        selectedDay = `${year}-${month + 1}-${d}`;
+        reservationForm.style.display = 'block';
+      });
+
+      calendar.appendChild(day);
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const company = document.getElementById('company').value;
+      const time = document.getElementById('time').value;
+      const anonymous = document.getElementById('anonymous').checked;
+      const category = document.getElementById('category').value;
+      const note = document.getElementById('note').value;
+
+      if (!company || !time || !category || !selectedDay) {
+        alert('企業名・時間・カテゴリ・日付は必須です');
+        return;
+      }
+
+      console.log('予約完了:', {
+        日付: selectedDay,
+        企業名: company,
+        時間帯: time,
+        匿名: anonymous,
+        カテゴリ: category,
+        備考: note
+      });
+
+      alert(`予約を受け付けました！\n${selectedDay} ${time}`);
+      form.reset();
+      reservationForm.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
