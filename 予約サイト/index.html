@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>予約カレンダー</title>
+  <style>
+    /* ページ全体の基本スタイル */
+    body { font-family: sans-serif; text-align: center; }
+
+    /* カレンダーを7列（1週間）で表示 */
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px; 
+      max-width: 600px; 
+      margin: 20px auto;
+    }
+
+    /* 各日付セルのデザイン */
+    .day { 
+      padding: 10px; 
+      border: 1px solid #ccc; 
+      cursor: pointer; 
+    }
+
+    .day:hover { background-color: #eef; } /* マウスを乗せたとき */
+    .selected { background-color: #88f; color: white; } /* 選択された日付 */
+    .today { background-color: #f88; color: white; }    /* 今日の日付 */
+    .reserved { background-color: #aaa; color: white; cursor: not-allowed; } /* 予約済みの日 */
+
+    /* 予約フォームは最初は非表示 */
+    #reservation-form { display: none; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <script>
+    // ログインチェック：ユーザーでログインしていない場合は login.html にリダイレクト
+    if (sessionStorage.getItem("role") !== "user") {
+      location.href = "login.html";
+    }
+  </script>
+
+  <h1>予約カレンダー</h1>
+  <!-- 管理者ログイン画面に移動するボタン -->
+  <button onclick="location.href='admin_login.html'">管理者ログイン</button>
+
+  <!-- カレンダー表示領域 -->
+  <div id="calendar" class="calendar"></div>
+  <p id="selected-date">日付を選択してください</p>
+
+  <!-- 予約フォーム（企業名・時間帯・カテゴリ・備考） -->
+  <div id="reservation-form">
+    <form id="form">
+      <!-- 企業名 -->
+      <input type="text" id="company" placeholder="企業名" required><br>
+
+      <!-- 時間帯 -->
+      <label>時間帯:</label>
+      <select id="time" required>
+        <option value="">選択してください</option>
+        <option value="午前">10:00〜12:00（午前）</option>
+        <option value="午後">14:00〜17:00（午後）</option>
+      </select><br>
+
+      <!-- カテゴリ -->
+      <label>カテゴリ:</label>
+      <select id="category" required>
+        <option value="">選択してください</option>
+        <option value="ゲーム">ゲーム</option>
+        <option value="CG">CG</option>
+        <option value="両方">両方</option>
+      </select><br>
+
+      <!-- 備考欄 -->
+      <textarea id="note" rows="3" cols="30" placeholder="備考"></textarea><br>
+
+      <!-- 予約ボタン -->
+      <button type="submit">予約する</button>
+    </form>
+  </div>
+
+  <script>
+    // DOM取得
+    const calendar = document.getElementById("calendar");
+    const selectedDateDisplay = document.getElementById("selected-date");
+    const reservationForm = document.getElementById("reservation-form");
+    const form = document.getElementById("form");
+
+    // 今日の日付情報を取得
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const todayDate = today.getDate();
+
+    // 月の最初と最後の日
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDay = firstDay.getDay(); // 月初の曜日 (0=日曜)
+
+    let selectedDay = null; // 選択された日付を保持
+
+    // 月初までの空白を埋める
+    for (let i = 0; i < startDay; i++) {
+      calendar.appendChild(document.createElement("div"));
+    }
+
+    // 日ごとのセルを作成
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const day = document.createElement("div");
+      day.textContent = d;
+      day.className = "day";
+
+      // 今日の日付を強調表示
+      if (d === todayDate) day.classList.add("today");
+
+      // 日付クリック時の処理
+      day.addEventListener("click", () => {
+        if (day.classList.contains("reserved")) return; // 予約済みは無効
+
+        // 他の日の選択を解除して、この日を選択状態にする
+        document.querySelectorAll(".day").forEach(el => el.classList.remove("selected"));
+        day.classList.add("selected");
+
+        // 選択日を表示
+        selectedDateDisplay.textContent = `${year}年${month+1}月${d}日 を選択しました`;
+        selectedDay = `${year}-${month+1}-${d}`;
+
+        // 予約フォームを表示
+        reservationForm.style.display = "block";
+      });
+
+      calendar.appendChild(day);
+    }
+
+    // フォーム送信時の処理
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      // 入力値取得
+      const company = document.getElementById("company").value;
+      const time = document.getElementById("time").value;
+      const category = document.getElementById("category").value;
+      const note = document.getElementById("note").value;
+
+      // 必須チェック
+      if (!company || !time || !category || !selectedDay) {
+        alert("必須項目を入力してください");
+        return;
+      }
+
+      // 簡易的に予約を通知（本来はDBに保存が必要）
+      alert(`予約を受け付けました！\n${selectedDay} ${time}\n${company}`);
+
+      // フォームをリセットして非表示に戻す
+      form.reset();
+      reservationForm.style.display = "none";
+    });
+  </script>
+</body>
+</html>

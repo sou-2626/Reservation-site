@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ユーザーログイン</title>
+</head>
+<body>
+  <h1>ユーザーログイン</h1>
+
+  <!-- ログインフォーム -->
+  <form onsubmit="login(event)">
+    <!-- ユーザーID入力欄 -->
+    <input type="text" id="userId" placeholder="ユーザーID" required><br>
+    <!-- パスワード入力欄 -->
+    <input type="password" id="userPass" placeholder="パスワード" required><br>
+    <!-- ログインボタン -->
+    <button type="submit">ログイン</button>
+  </form>
+
+  <script>
+    // ユーザー用の固定IDとパスワード（管理者画面で編集できるように拡張可能）
+    const USER_ID = "user";
+    const USER_PASS = "1111";
+
+    // ログイン処理
+    function login(e) {
+      e.preventDefault(); // フォームのページリロードを防止
+
+      // 入力値を取得
+      const id = document.getElementById("userId").value;
+      const pass = document.getElementById("userPass").value;
+
+      // IDとパスワードが一致した場合
+      if (id === USER_ID && pass === USER_PASS) {
+        // ログイン情報をセッションストレージに保存（ページ移動後も保持）
+        sessionStorage.setItem("role", "user");
+
+        // カレンダー画面（index.html）へ移動
+        location.href = "index.html";
+      } else {
+        // 一致しない場合はエラーメッセージ
+        alert("ユーザーIDまたはパスワードが違います");
+      }
+    }
+  </script>
+</body>
+</html>

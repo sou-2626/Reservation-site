@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>管理者ログイン</title>
+</head>
+<body>
+  <h1>管理者ログイン</h1>
+  <form onsubmit="adminLogin(event)">
+    <input type="text" id="adminId" placeholder="管理者ID" required><br>
+    <input type="password" id="adminPass" placeholder="パスワード" required><br>
+    <button type="submit">ログイン</button>
+  </form>
+
+  <script>
+    const ADMIN_ID = "admin";
+    const ADMIN_PASS = "1234";
+
+    function adminLogin(e) {
+      e.preventDefault();
+      const id = document.getElementById("adminId").value;
+      const pass = document.getElementById("adminPass").value;
+
+      if (id === ADMIN_ID && pass === ADMIN_PASS) {
+        sessionStorage.setItem("role", "admin");
+        location.href = "admin.html";
+      } else {
+        alert("管理者IDまたはパスワードが違います");
+      }
+    }
+  </script>
+</body>
+</html>
