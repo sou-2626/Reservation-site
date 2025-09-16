@@ -11,7 +11,7 @@
     }
     .calendar {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(7, 1fr); /* 1週間を7列で表示 */
       gap: 5px;
       max-width: 600px;
       margin: 20px auto;
@@ -51,17 +51,24 @@
   <div id="calendar" class="calendar"></div>
   <p id="selected-date">日付を選択してください</p>
 
-  <!-- 予約フォーム -->
+  <!-- 予約フォーム（企業名、時間帯、匿名、カテゴリ、備考など） -->
   <div id="reservation-form">
     <form id="form">
+      <!-- 企業名の入力（必須） -->
       <input type="text" id="company" placeholder="企業名" required><br>
+
+      <!-- 時間帯選択（午前 or 午後） -->
       <label>時間帯:</label>
       <select id="time" required>
         <option value="">選択してください</option>
         <option value="午前">10:00〜12:00（午前）</option>
         <option value="午後">14:00〜17:00（午後）</option>
       </select><br>
+
+      <!-- 匿名予約の有無 -->
       <label>匿名で予約：</label><input type="checkbox" id="anonymous"><br>
+
+      <!-- カテゴリ選択（ゲーム/CG/両方） -->
       <label>カテゴリ:</label>
       <select id="category" required>
         <option value="">選択してください</option>
@@ -69,7 +76,11 @@
         <option value="CG">CG</option>
         <option value="両方">両方</option>
       </select><br>
+
+      <!-- 備考欄（自由記述） -->
       <textarea id="note" rows="3" cols="30" placeholder="備考"></textarea><br>
+
+      <!-- 送信ボタン -->
       <button type="submit">予約する</button>
     </form>
   </div>
@@ -80,35 +91,45 @@
     const reservationForm = document.getElementById('reservation-form');
     const form = document.getElementById('form');
 
+    // 今日の日付を取得
     const today = new Date();
     const year = today.getFullYear();
     const month = today.getMonth();
     const todayDate = today.getDate();
 
+    // 月の最初と最後の日を取得
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    const startDay = firstDay.getDay();
+    const startDay = firstDay.getDay(); // 月初の曜日（0:日〜6:土）
 
-    let selectedDay = null;
+    let selectedDay = null; // 選択された日付を保存
 
+    // カレンダーの前方スペース調整（1日が水曜なら2個空白）
     for (let i = 0; i < startDay; i++) {
       const empty = document.createElement('div');
       calendar.appendChild(empty);
     }
 
+    // 各日付を生成してカレンダーに表示
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const day = document.createElement('div');
       day.textContent = d;
       day.className = 'day';
 
+      // 今日の日付には赤色背景
       if (d === todayDate) {
         day.classList.add('today');
       }
 
+      // 日付をクリックした時の処理
       day.addEventListener('click', () => {
-        if (day.classList.contains('reserved')) return;
+        if (day.classList.contains('reserved')) return; // 予約済みなら何もしない
+
+        // 他の日付の選択解除
         document.querySelectorAll('.day').forEach(el => el.classList.remove('selected'));
         day.classList.add('selected');
+
+        // 選択した日付を表示＆フォーム表示
         selectedDateDisplay.textContent = `${year}年${month + 1}月${d}日 を選択しました`;
         selectedDay = `${year}-${month + 1}-${d}`;
         reservationForm.style.display = 'block';
@@ -117,20 +138,24 @@
       calendar.appendChild(day);
     }
 
+    // フォーム送信時の処理
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
+      // 各入力項目の取得
       const company = document.getElementById('company').value;
       const time = document.getElementById('time').value;
       const anonymous = document.getElementById('anonymous').checked;
       const category = document.getElementById('category').value;
       const note = document.getElementById('note').value;
 
+      // 必須項目チェック
       if (!company || !time || !category || !selectedDay) {
         alert('企業名・時間・カテゴリ・日付は必須です');
         return;
       }
 
+      // デバッグ用：予約内容をコンソールに出力
       console.log('予約完了:', {
         日付: selectedDay,
         企業名: company,
@@ -140,7 +165,10 @@
         備考: note
       });
 
+      // 簡易確認アラート（実運用ではバックエンド保存と照合が必要）
       alert(`予約を受け付けました！\n${selectedDay} ${time}`);
+
+      // フォームリセット＆非表示
       form.reset();
       reservationForm.style.display = 'none';
     });
