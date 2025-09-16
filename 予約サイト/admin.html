@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>管理画面</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    h1 { text-align: center; }
+    .section { border: 1px solid #ccc; padding: 15px; margin: 15px 0; }
+    input, select, textarea { margin: 5px; }
+  </style>
+</head>
+<body>
+  <script>
+    // --- 管理者ログインチェック ---
+    // セッション情報を確認し、"admin" 以外なら管理者ログインページに飛ばす
+    if (sessionStorage.getItem("role") !== "admin") {
+      location.href = "admin_login.html";
+    }
+  </script>
+
+  <h1>管理画面</h1>
+  <!-- カレンダー（index.html）に戻るボタン -->
+  <button onclick="location.href='index.html'">カレンダーに戻る</button>
+
+  <!-- 予約一覧表示 -->
+  <div class="section">
+    <h2>予約一覧</h2>
+    <div id="reservation-list">予約はまだありません</div>
+  </div>
+
+  <!-- 予約不可日の設定 -->
+  <div class="section">
+    <h2>予約不可日の設定</h2>
+
+    <!-- 単日指定 -->
+    <label>日付指定:</label>
+    <input type="date" id="block-date">
+    <button onclick="blockDate()">予約不可にする</button><br>
+
+    <!-- 期間指定 -->
+    <label>期間指定:</label>
+    <input type="date" id="block-start"> 〜 
+    <input type="date" id="block-end">
+    <button onclick="blockRange()">この期間を予約不可にする</button>
+  </div>
+
+  <!-- ログイン情報の変更 -->
+  <div class="section">
+    <h2>ログイン情報の変更</h2>
+
+    <!-- ユーザー用ID/パスワード変更 -->
+    <h3>ユーザー用</h3>
+    <input type="text" id="newUserId" placeholder="新しいユーザーID">
+    <input type="password" id="newUserPass" placeholder="新しいユーザーパスワード">
+    <button onclick="changeUserLogin()">変更</button>
+
+    <!-- 管理者用ID/パスワード変更 -->
+    <h3>管理者用</h3>
+    <input type="text" id="newAdminId" placeholder="新しい管理者ID">
+    <input type="password" id="newAdminPass" placeholder="新しい管理者パスワード">
+    <button onclick="changeAdminLogin()">変更</button>
+  </div>
+
+  <script>
+    // --- データの取得（ローカル保存を利用） ---
+    let reservations = JSON.parse(localStorage.getItem("reservations") || "[]"); // 予約一覧
+    let blockedDates = JSON.parse(localStorage.getItem("blockedDates") || "[]"); // 予約不可日
+
+    // ✅ 予約一覧を表示する関数
+    function renderReservations() {
+      const list = document.getElementById("reservation-list");
+      if (reservations.length === 0) {
+        list.textContent = "予約はまだありません";
+        return;
+      }
+      list.innerHTML = "";
+      reservations.forEach(r => {
+        const div = document.createElement("div");
+        // 予約内容をまとめて表示
+        div.textContent = `${r.date} / ${r.company} / ${r.time} / ${r.category} / 備考:${r.note}`;
+        list.appendChild(div);
+      });
+    }
+
+    // ✅ 単日の予約不可登録
+    function blockDate() {
+      const date = document.getElementById("block-date").value;
+      if (!date) return alert("日付を選んでください");
+      blockedDates.push(date);
+      localStorage.setItem("blockedDates", JSON.stringify(blockedDates));
+      alert(`${date} を予約不可にしました`);
+    }
+
+    // ✅ 期間の予約不可登録
+    function blockRange() {
+      const start = document.getElementById("block-start").value;
+      const end = document.getElementById("block-end").value;
+      if (!start || !end) return alert("期間を選んでください");
+
+      let d = new Date(start);
+      const last = new Date(end);
+
+      // 1日ずつ予約不可に追加
+      while (d <= last) {
+        blockedDates.push(d.toISOString().split("T")[0]); // "YYYY-MM-DD" 形式
+        d.setDate(d.getDate() + 1);
+      }
+
+      localStorage.setItem("blockedDates", JSON.stringify(blockedDates));
+      alert(`${start}〜${end} を予約不可にしました`);
+    }
+
+    // ✅ ユーザーログイン情報の変更
+    function changeUserLogin() {
+      const id = document.getElementById("newUserId").value;
+      const pass = document.getElementById("newUserPass").value;
+      if (!id || !pass) return alert("両方入力してください");
+
+      localStorage.setItem("userLogin", JSON.stringify({id, pass}));
+      alert("ユーザー用ログイン情報を変更しました");
+    }
+
+    // ✅ 管理者ログイン情報の変更
+    function changeAdminLogin() {
+      const id = document.getElementById("newAdminId").value;
+      const pass = document.getElementById("newAdminPass").value;
+      if (!id || !pass) return alert("両方入力してください");
+
+      localStorage.setItem("adminLogin", JSON.stringify({id, pass}));
+      alert("管理者ログイン情報を変更しました");
+    }
+
+    // ✅ 初期表示（予約一覧を出す）
+    renderReservations();
+  </script>
+</body>
+</html>
