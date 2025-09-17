@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,13 +20,36 @@
     }
 
     .day {
-      padding: 10px;
+      position: relative;
+      height: 80px;
+      padding: 5px;
+      font-size: 12px;
       border: 1px solid #ccc;
-      cursor: pointer;
+      box-sizing: border-box;
     }
 
-    .day:hover {
-      background-color: #eef;
+    .day .date {
+      position: absolute;
+      top: 3px;
+      left: 5px;
+      font-weight: bold;
+    }
+
+    .day .company {
+      margin-top: 25px;
+      font-size: 12px;
+      color: #004080;
+    }
+
+    .company-name {
+      font-size: 11px;
+      color: #004080;
+      margin-top: 30px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+      width: 100%;
     }
 
     .selected {
@@ -34,7 +58,7 @@
     }
 
     .today {
-      border: 2px solid #ff0000; 
+      border: 2px solid #ff0000;
       box-sizing: border-box;
     }
 
@@ -49,7 +73,9 @@
       margin-top: 20px;
     }
 
-    input, select, textarea {
+    input,
+    select,
+    textarea {
       margin: 5px;
     }
 
@@ -59,27 +85,28 @@
     }
   </style>
 </head>
+
 <body>
   <h1>予約カレンダー</h1>
   <!-- 管理者ログインボタン -->
   <div style="text-align: right; margin: 10px 20px;">
-   <button onclick="goToAdminLogin()">管理者ログイン</button>
+    <button onclick="goToAdminLogin()">管理者ログイン</button>
   </div>
   <!-- 月の表示と移動ボタン -->
   <div id="month-control" style="margin: 20px;">
-   <button id="prev-month">◀</button>
-   <span id="current-month" style="font-weight: bold; margin: 0 10px;"></span>
-   <button id="next-month">▶</button>
+    <button id="prev-month">◀</button>
+    <span id="current-month" style="font-weight: bold; margin: 0 10px;"></span>
+    <button id="next-month">▶</button>
   </div>
   <!-- 曜日ラベル -->
   <div class="calendar calendar-header">
-   <div>日</div>
-   <div>月</div>
-   <div>火</div>
-   <div>水</div>
-   <div>木</div>
-   <div>金</div>
-   <div>土</div>
+    <div>日</div>
+    <div>月</div>
+    <div>火</div>
+    <div>水</div>
+    <div>木</div>
+    <div>金</div>
+    <div>土</div>
   </div>
   <!-- カレンダー表示 -->
   <div id="calendar" class="calendar"></div>
@@ -111,14 +138,15 @@
   <!-- ログアウトボタン -->
   <button onclick="logout()">ログアウト</button>
   <script>
-  function logout() {
-    sessionStorage.removeItem("loggedIn");
-    window.location.href = "login.html";
-  }
+    function logout() {
+      sessionStorage.removeItem("loggedIn");
+      window.location.href = "login.html";
+    }
   </script>
 
 
   <!-- 外部JSを読み込み -->
   <script src="calendar.js"></script>
 </body>
+
 </html>

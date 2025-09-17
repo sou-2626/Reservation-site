@@ -37,7 +37,8 @@
     <h2>管理者ログイン</h2>
     <input type="text" id="admin-id" placeholder="管理者ID"><br>
     <input type="password" id="admin-pass" placeholder="パスワード"><br>
-    <button onclick="adminLogin()">ログイン</button>
+    <button onclick="adminLogin()">ログイン</button><br>
+    <button onclick="goToCalendar()">カレンダーに戻る</button>
     <p id="error-message" style="color: red;"></p>
   </div>
 
@@ -55,6 +56,10 @@
       } else {
         document.getElementById("error-message").textContent = "管理者IDまたはパスワードが違います";
       }
+    }
+
+    function goToCalendar() {
+    window.location.href = "index.html"; // カレンダーページのファイル名に合わせてください
     }
   </script>
 </body>

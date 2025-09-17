@@ -42,43 +42,62 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // カレンダーを描画する関数
   function renderCalendar(year, month) {
-    // 表示している月のラベル更新
     monthLabel.textContent = `${year}年 ${month + 1}月`;
 
-    // 現在の月以前には戻れないように制御
     if (year < todayYear || (year === todayYear && month <= todayMonth)) {
       prevBtn.disabled = true;
     } else {
       prevBtn.disabled = false;
     }
 
-    // カレンダー内をクリア
     calendar.innerHTML = "";
 
-    // 予約不可日データを取得
     const db = getDatabase();
     const blocked = db.blockedDates;
+    const reservations = db.reservations;
 
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startDay = firstDay.getDay();
 
-    // カレンダーの最初の空白を作成
     for (let i = 0; i < startDay; i++) {
       const empty = document.createElement('div');
       calendar.appendChild(empty);
     }
 
-    // 日付を1日ずつ生成して配置
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const day = document.createElement('div');
-      day.textContent = d;
       day.className = 'day';
 
       const dateObj = new Date(year, month, d);
       dateObj.setHours(0, 0, 0, 0);
-      const isoDate = dateObj.toISOString().split('T')[0];
+      const correctedDateObj = new Date(dateObj);
+      correctedDateObj.setMinutes(correctedDateObj.getMinutes() + correctedDateObj.getTimezoneOffset());
+      const isoDate = `${year}年${month + 1}月${d}日`;
+
       const dayOfWeek = dateObj.getDay();
+
+      const dateLabel = document.createElement('div');
+      dateLabel.className = 'date';
+      dateLabel.textContent = d;
+      day.appendChild(dateLabel);
+
+      const companyList = document.createElement('div');
+      companyList.className = 'company';
+      const dayReservations = db.reservations.filter(r => r.date === isoDate);
+      dayReservations.forEach(r => {
+        const name = r.anonymous === "はい" ? "匿名" : r.company;
+        const shortName = name.length > 5 ? name.slice(0, 5) + "…" : name;
+        const bar = document.createElement("div");
+        bar.className = "company-name";
+        if (r.category === "CG") bar.style.color = "green";
+        else if (r.category === "ゲーム") bar.style.color = "blue";
+        else if (r.category === "両方") bar.style.color = "red";
+        bar.textContent = shortName;
+        day.appendChild(bar);
+      });
+
+      calendar.appendChild(day);
 
       const tomorrow = new Date(todayFull);
       tomorrow.setDate(todayFull.getDate() + 1);
@@ -91,7 +110,6 @@ window.addEventListener("DOMContentLoaded", () => {
         day.classList.add('today');
       }
 
-      // 予約できない日（過去・土日・翌日・管理者設定の不可日）
       if (isWeekend || isPastOrTodayOrTomorrow || isBlockedDate) {
         day.classList.add('reserved');
         if (isBlockedDate) {
@@ -102,7 +120,6 @@ window.addEventListener("DOMContentLoaded", () => {
           day.title = "土日は予約できません";
         }
       } else {
-        // 予約可能な日：クリックで選択・フォーム表示
         day.addEventListener('click', () => {
           document.querySelectorAll('.day').forEach(el => el.classList.remove('selected'));
           day.classList.add('selected');
@@ -116,7 +133,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 前月ボタン
   prevBtn.addEventListener('click', () => {
     if (currentMonth > 0) {
       currentMonth--;
@@ -127,7 +143,6 @@ window.addEventListener("DOMContentLoaded", () => {
     renderCalendar(currentYear, currentMonth);
   });
 
-  // 次月ボタン
   nextBtn.addEventListener('click', () => {
     if (currentMonth < 11) {
       currentMonth++;
@@ -138,10 +153,8 @@ window.addEventListener("DOMContentLoaded", () => {
     renderCalendar(currentYear, currentMonth);
   });
 
-  // 最初のカレンダー表示
   renderCalendar(currentYear, currentMonth);
 
-  // フォーム送信処理（予約データを保存）
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
@@ -157,7 +170,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     const newRes = {
-      date: selectedDay,
+      date: selectedDay,  // クリック時に確定した日付をそのまま使う
       time: time,
       company: company,
       anonymous: anonymous ? "はい" : "いいえ",
@@ -174,4 +187,5 @@ window.addEventListener("DOMContentLoaded", () => {
     reservationForm.style.display = 'none';
     renderCalendar(currentYear, currentMonth);
   });
+
 });

@@ -39,14 +39,21 @@
 </head>
 
 <body>
-    <h1>予約不可日の設定</h1>
 
     <!-- 管理画面に戻るボタン -->
     <button onclick="goBack()">← 管理画面に戻る</button>
-
     <div>
+        <h3>予約不可日を追加</h3>
+        <label>単一日:</label>
         <input type="date" id="blocked-date-input">
-        <button onclick="addBlockedDate()">追加</button>
+        <button onclick="addSingleDate()">追加</button>
+
+        <h3>一括追加（範囲指定）</h3>
+        <label>開始日:</label>
+        <input type="date" id="start-date-input">
+        <label>終了日:</label>
+        <input type="date" id="end-date-input">
+        <button onclick="addDateRange()">範囲を追加</button>
     </div>
 
     <table id="blocked-list">
@@ -103,7 +110,7 @@
             });
         }
 
-        function addBlockedDate() {
+        function addSingleDate() {
             const input = document.getElementById("blocked-date-input");
             const dateValue = input.value;
             if (!dateValue) {
@@ -112,7 +119,6 @@
             }
 
             const db = getDatabase();
-
             if (!db.blockedDates.includes(dateValue)) {
                 db.blockedDates.push(dateValue);
                 saveDatabase(db);
@@ -121,6 +127,44 @@
                 alert("すでに予約不可日として設定されています");
             }
         }
+
+        function addDateRange() {
+            const start = document.getElementById("start-date-input").value;
+            const end = document.getElementById("end-date-input").value;
+
+            if (!start || !end) {
+                alert("開始日と終了日を両方選んでください");
+                return;
+            }
+
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+
+            if (startDate > endDate) {
+                alert("開始日は終了日より前にしてください");
+                return;
+            }
+
+            const db = getDatabase();
+            let added = 0;
+
+            for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                const iso = d.toISOString().split("T")[0];
+                if (!db.blockedDates.includes(iso)) {
+                    db.blockedDates.push(iso);
+                    added++;
+                }
+            }
+
+            if (added > 0) {
+                saveDatabase(db);
+                renderBlockedDates();
+                alert(`${added}件の日付を追加しました`);
+            } else {
+                alert("すべての指定日はすでに予約不可になっています");
+            }
+        }
+
 
         function goBack() {
             window.location.href = "admin_dashboard.html";
