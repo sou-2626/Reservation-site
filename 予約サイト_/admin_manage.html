@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>管理画面：予約不可日の設定</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #eee;
+        }
+
+        input[type="date"] {
+            padding: 5px;
+        }
+
+        button {
+            padding: 5px 10px;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>予約不可日の設定</h1>
+
+    <!-- 管理画面に戻るボタン -->
+    <button onclick="goBack()">← 管理画面に戻る</button>
+
+    <div>
+        <input type="date" id="blocked-date-input">
+        <button onclick="addBlockedDate()">追加</button>
+    </div>
+
+    <table id="blocked-list">
+        <thead>
+            <tr>
+                <th>日付</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 非予約日がここに表示される -->
+        </tbody>
+    </table>
+
+    <script>
+        // 管理者ログイン確認
+        if (sessionStorage.getItem("isAdminLoggedIn") !== "true") {
+            window.location.href = "admin_login.html";
+        }
+
+        function getDatabase() {
+            const data = localStorage.getItem("calendarData");
+            return data ? JSON.parse(data) : { blockedDates: [], reservations: [] };
+        }
+
+        function saveDatabase(db) {
+            localStorage.setItem("calendarData", JSON.stringify(db));
+        }
+
+        function renderBlockedDates() {
+            const db = getDatabase();
+            const blocked = db.blockedDates;
+            const tbody = document.querySelector("#blocked-list tbody");
+            tbody.innerHTML = "";
+
+            blocked.forEach((dateStr, idx) => {
+                const tr = document.createElement("tr");
+                const tdDate = document.createElement("td");
+                tdDate.textContent = dateStr;
+
+                const tdOp = document.createElement("td");
+                const btn = document.createElement("button");
+                btn.textContent = "削除";
+                btn.onclick = () => {
+                    db.blockedDates.splice(idx, 1);
+                    saveDatabase(db);
+                    renderBlockedDates();
+                };
+
+                tdOp.appendChild(btn);
+                tr.appendChild(tdDate);
+                tr.appendChild(tdOp);
+                tbody.appendChild(tr);
+            });
+        }
+
+        function addBlockedDate() {
+            const input = document.getElementById("blocked-date-input");
+            const dateValue = input.value;
+            if (!dateValue) {
+                alert("日付を選んでください");
+                return;
+            }
+
+            const db = getDatabase();
+
+            if (!db.blockedDates.includes(dateValue)) {
+                db.blockedDates.push(dateValue);
+                saveDatabase(db);
+                renderBlockedDates();
+            } else {
+                alert("すでに予約不可日として設定されています");
+            }
+        }
+
+        function goBack() {
+            window.location.href = "admin_dashboard.html";
+        }
+
+        renderBlockedDates();
+    </script>
+</body>
+
+</html>
