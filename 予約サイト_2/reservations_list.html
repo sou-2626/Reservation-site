@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>予約一覧</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    h1 { margin: 0 0 6px; }
+    #msg { font-size: 14px; color: #666; }
+    table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #eee; }
+    .back { margin-top: 16px; }
+    .btn {
+      display:inline-block; padding:8px 14px; border-radius:6px;
+      background:#2563eb; color:#fff; text-decoration:none; font-weight:600; border:0; cursor:pointer;
+    }
+    .btn:hover { opacity:.9; }
+    .delete { background:#e11d48; }
+  </style>
+</head>
+<body>
+  <h1>現在の予約一覧</h1>
+  <div id="msg">読み込み中…</div>
+
+  <table id="reservation-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>日付</th>
+        <th>時間</th>
+        <th>企業名</th>
+        <th>備考</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody><!-- ここに行を追加 --></tbody>
+  </table>
+
+  <div class="back">
+    <button type="button" class="btn" onclick="this.disabled=true; location.href='admin_dashboard.html'">
+      管理画面に戻る
+    </button>
+  </div>
+
+  <script>
+    // === 予約一覧（API版） ===
+    const API_URL = "./api.php";
+
+    // 'YYYY-MM-DD' → 'YYYY年M月D日' 表示用
+    function isoToJP(iso) {
+      const m = iso?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!m) return iso ?? "";
+      const [_, y, mo, d] = m;
+      return `${y}年${+mo}月${+d}日`;
+    }
+
+    async function loadList() {
+      const tbody = document.querySelector('#reservation-table tbody');
+      const msg   = document.getElementById('msg');
+      tbody.innerHTML = "";
+      msg.textContent = "読み込み中…";
+
+      try {
+        const res  = await fetch(`${API_URL}?action=list`);
+        const data = await res.json();   // [{id, name, date, time, memo}, ...]
+
+        // 日付→時間で昇順ソート
+        data.sort((a, b) => {
+          const ka = `${a.date || ""}-${a.time || ""}`;
+          const kb = `${b.date || ""}-${b.time || ""}`;
+          return ka.localeCompare(kb);
+        });
+
+        if (!data.length) {
+          msg.textContent = "データなし";
+          return;
+        }
+
+        for (const r of data) {
+          const tr = document.createElement('tr');
+
+          // 安全に textContent を使って代入
+          const tdId    = document.createElement('td'); tdId.textContent = r.id ?? "";
+          const tdDate  = document.createElement('td'); tdDate.textContent = isoToJP(r.date);
+          const tdTime  = document.createElement('td'); tdTime.textContent = r.time ?? "";
+          const tdName  = document.createElement('td'); tdName.textContent = r.name ?? "";
+          const tdMemo  = document.createElement('td'); tdMemo.textContent = r.memo ?? "";
+
+          const tdOp    = document.createElement('td');
+          const delBtn  = document.createElement('button');
+          delBtn.className = "btn delete";
+          delBtn.textContent = "削除";
+          delBtn.dataset.id = r.id;
+          tdOp.appendChild(delBtn);
+
+          tr.append(tdId, tdDate, tdTime, tdName, tdMemo, tdOp);
+          tbody.appendChild(tr);
+        }
+
+        msg.textContent = `件数: ${data.length}`;
+      } catch (e) {
+        console.error(e);
+        msg.textContent = "読み込み失敗";
+      }
+    }
+
+    // 削除（イベント委譲）
+    document.addEventListener('click', async (e) => {
+      const b = e.target.closest('button.delete');
+      if (!b) return;
+      const id = b.dataset.id;
+      if (!id) return;
+
+      if (!confirm(`ID: ${id} を削除しますか？`)) return;
+
+      try {
+        const res  = await fetch(`${API_URL}?action=delete`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          await loadList(); // 再読込
+        } else {
+          alert("削除失敗: " + (data.error || "不明なエラー"));
+        }
+      } catch (e) {
+        console.error(e);
+        alert("通信エラーで削除できませんでした");
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', loadList);
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>管理画面</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    button {
+      padding: 8px 16px;
+      margin-top: 20px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>管理画面</h1>
+  <p>ようこそ、管理者さん</p>
+  <button onclick="location.href='admin_manage.html'">予約不可日設定</button>
+  <button onclick="location.href='reservations_list.html'">予約一覧を見る</button>
+  <button onclick="location.href='account_settings.html'">アカウント設定</button>
+  <button onclick="adminLogout()">ログアウト</button>
+
+  <script>
+    if (sessionStorage.getItem("isAdminLoggedIn") !== "true") {
+      window.location.href = "admin_login.html";
+    }
+    function adminLogout() {
+      sessionStorage.removeItem("isAdminLoggedIn");
+      window.location.href = "admin_login.html";
+    }
+  </script>
+</body>
+
+</html>
