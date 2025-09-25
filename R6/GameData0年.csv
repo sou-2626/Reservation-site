@@ -1,0 +1,12 @@
+﻿ゲーム/1年,福岡情報ITクリエイター専門学校/冬季作品展示会,,,,,,,,,,
+希望職種,名前,Faces/顔写真,作品名,開発環境（使用ツール）,ジャンル,説明文,Works/ゲームプレイ画面,動画(youtube),URL(GitHub),動画のイチオシ！,ブースの机の数
+モーション,大原　太郎,Faces/2年_CG_大原太郎.jpg,Works/作品名.png,35～50文字くらいで説明,https://www.vivivit.com/◯◯◯,,,
+プログラマー,工藤　将大,Faces/一年_PG_kudo.jpg,physical,"C++ DxLib",2Dシューティング,敵撃って突破しよう！名前に攻略のカギがあるかも…,Works/kudo_samune.png,https://www.youtube.com/embed/CEhAbvY43Xw,https://github.com/kudousyota/shooting_mast.git
+プログラマー,坂本　煌,Faces/1年_PG_坂本煌.jpg,TrapGame,"C++ DxLib",2Dアクション,トラップをよけてゴールを目指すゲームです。,Works/TrapGame.png,https://www.youtube.com/embed/dsTJ4Zk7z0A,https://github.com/13ko13/TrapGame_Master.git
+プログラマー,佐々木　大翔,Faces/1年_PG_佐々木大翔.jpg,"Mask Dude","C++ DxLib",2Dアクション,土管から出現する敵を倒したり、コインを集めたりして高スコアを目指そう！敵を倒すときは、ブロックの下から叩き、その後直接体当たりすることで倒せるぞ！,Works/佐々木大翔_MaskDude_サムネイル.png,https://www.youtube.com/embed/HHX21nY9X10,https://github.com/Tiger5286/MaskDude_Master.git
+プログラマー,上永　歩睦,Faces/1年_PG_上永歩睦.jpg,"Block Destroyer","C++ DxLib",パズル,カードで強化しながら迫り来るブロックを破壊していく、戦略型ブロック崩しゲーム！,Works/上永歩睦_サムネイル.png,https://www.youtube.com/embed/Vxgj0sz73OM,https://github.com/KaminagaAyumu/BlockDestroyer.git
+プログラマー,赤崎　遥日,Faces/1年_赤崎遙日_PG.jpg,"One Bird Shoot",Unity、C#,アクションシューティング,ダックハントをモチーフにしたシューティングアクションゲームです！鳥を撃ち抜いた瞬間がとても爽快です！,Works/赤崎遙日サムネイル.png,https://www.youtube.com/embed/DatHu7WdIP8,https://github.com/harukaakasaki/OneBirdShootMaster.git
+プログラマー,川浪　珀虎,Faces/1年_PG_川浪珀虎.jpg,"FOX CLIMB","C++ DxLib",2Dアクション,キツネが火の玉をよけながら頂上を目指すゲームです。,Works/川浪珀虎_サムネイル.png,https://www.youtube.com/embed/tExAcwQzJBc,https://github.com/kawanamihakuto/FOX-CLIMB
+プログラマー,大崎　永遠,,ManholeFight,"C++ DxLib",2Dアクション,2種類の攻撃を駆使し、相手をマンホールに落として戦う2D格闘ゲームです,Works/大崎永遠_サムネイル.png,https://www.youtube.com/embed/DDdNNKu-pbA,https://github.com/tw4706/ManholeFight_master.git
+プログラマー,樋口　悠斗,Faces/1年_PG_樋口悠斗.jpg,BOOM,"Unity C#",2Dシューティング,シンプルなシューティングゲームです。岩を壊してスコアを稼ぎます,Works/樋口悠斗サムネイル.png,https://www.youtube.com/embed/vUVwqQ7cfQw,https://github.com/jobsearch0929/BOOM
+プログラマー,平尾　泰稀,Faces/1年_平尾泰稀.jpg,"Over Read","Unity C#",2Dアクション,相手の読みを超えてぶっ飛ばせ!,Works/Playmovie.png,https://www.youtube.com/embed/K3sp77w7Pn0,https://github.com/hir4rin/FIGHTINGGAME_master

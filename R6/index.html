@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作品展示会</title>
+    <style>
+        body {
+            color: white; /* 文字の色 */
+            background-color: #0b0d61; /* 背景の色 */
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 5px, transparent 5px),
+                            linear-gradient(90deg, rgba(0, 128, 255, 0.2), rgba(255, 0, 128, 0.2));
+            background-size: 10px 10px, 200% 100%; /* 背景のサイズ */
+            animation: starFlow 8s linear infinite, galaxyFlow 6s linear infinite; /* 粒子と流れの2つの動き */
+            /* margin: 0; */
+            /* padding: 0; */
+        }
+ 
+        @keyframes starFlow {
+            0% {
+                background-position: 0 0, 0 0;
+            }
+            100% {
+                background-position: 100px 100px, 0 0;
+            }
+        }
+        @keyframes galaxyFlow {
+            0% {
+                background-position: 0 0, 0 0;
+            }
+            100% {
+                background-position: -200px 0, 0 0;
+            }
+        }
+        @keyframes moveBg {
+            0% {
+                background-position: 0 0, 100px 100px;
+            }
+            100% {
+                background-position: 100px 100px, 0 0;
+            }
+        }
+        @keyframes moveBg {
+            0% {
+                background-position: 0 0, 100px 100px;
+            }
+            100% {
+                background-position: 100px 100px, 0 0;
+            }
+        }
+ 
+        @font-face {
+            font-family: 'MyFont'; /* フォントの名前（任意） */
+            src: url('TrainOne-Regular.ttf') format('woff2'), /* Web用に最適化されたフォーマット */
+        }
+ 
+        /*  ホバーエフェクト　*/
+        /* 中央のアニメーション */
+        .bluelight {
+            display: table;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            position: absolute;
+            left: 50%;
+            top: 30%; /* 高さの調整 */
+            transform: translate(-50%, -50%);
+        }
+ 
+        #container {
+            width: 70vw;
+            margin: 30vw auto;
+        }
+ 
+        .bluelight a {
+            display: table-cell; /* 子要素の中央配置 */
+            font-size: 4em; /* テキストサイズ */
+            text-decoration: none; /* テキスト装飾を削除 */
+            text-align: center; /* テキストを中央揃え */
+            vertical-align: middle; /* テキストを垂直方向中央に配置 */
+            border-radius: 50%; /* 円形にする */
+            color: #daf6ff; /* テキストの色 */
+            text-shadow: 0 0 20px rgb(190, 230, 10); /* テキストの光沢効果 */
+            box-shadow: inset 0 0 0 rgba(10, 175, 230, 0); /* 内側の影（アニメーション用の初期設定） */
+            background-image: radial-gradient(circle, rgba(10, 175, 230, 0.3) 0%, rgba(10, 175, 230, 0) 60%); /* 背景に円形のグラデーション */
+            /*フォントを指定 */
+            font-family: 'MyFont';
+           
+        }
+ 
+        /* 常に回転する円形の枠 */
+        .bluelight:before,
+        .bluelight:after,
+        .bluelight a:before,
+        .bluelight a:after {
+            content: ""; /* 擬似要素として内容なしで作成 */
+            display: block; /* 表示させる */
+            position: absolute; /* 親要素の中心に固定 */
+            border-radius: 5%; /* 円形にする */
+            left: 50%; /* 水平方向中央 */
+            top: 50%; /* 垂直方向中央 */
+            transform: translate(-50%, -50%); /* 中心に位置 */
+        }
+ 
+        /* 外側の回転する円形枠 (dotted) */
+        .bluelight:before {
+            animation: rotate 20s linear infinite; /* 20秒で回転する無限アニメーション */
+            width: 180%; /* 親要素より少し大きいサイズ */
+            height: 180%; /* 親要素より少し大きいサイズ */
+            border: 10px dotted rgba(255, 255, 255, 0.3); /* 点線のボーダー */
+            z-index: -1; /* 背面に表示 */
+        }
+ 
+        /* 外側の回転する円形枠 (dashed) */
+        .bluelight:after {
+            animation: rotate 10s linear infinite reverse; /* 逆方向の回転 */
+            width: 160%; /* 親要素よりやや大きいサイズ */
+            height: 160%; /* 親要素よりやや大きいサイズ */
+            border: 80px dashed rgba(10, 175, 230, 0.1); /* 太めの点線 */
+            z-index: -2; /* 背面に表示 */
+        }
+ 
+        /* 内側の回転する円形枠 */
+        .bluelight a:before {
+            animation: rotate 5s ease-in-out infinite alternate; /* 交互に回転するアニメーション */
+            width: 120%; /* 親要素より少し大きいサイズ */
+            height: 120%; /* 親要素より少し大きいサイズ */
+            border: 50px dashed rgba(10, 175, 230, 0.3); /* 点線のボーダー */
+        }
+ 
+        /* 内側の回転する円形枠 (小さめ) */
+        .bluelight a:after {
+            animation: rotate 5s linear infinite; /* 回転アニメーション */
+            width: 120%; /* 親要素より少し大きいサイズ */
+            height: 120%; /* 親要素より少し大きいサイズ */
+            border: 18px dashed rgba(10, 175, 230, 0.3); /* 細い点線ボーダー */
+        }
+ 
+        /* 回転アニメーション */
+        @keyframes rotate {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg); /* 回転の開始位置 */
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg); /* 回転の終了位置 */
+            }
+        }
+ 
+ 
+        /* 他の要素のスタイルが背景に影響しないように */
+        .bg {
+            display: none;
+        }
+ 
+        .logo {
+            width: 300px; /* 横幅を指定 */
+            height: auto; /* 高さを自動調整 */
+            margin: 10px; /* 上下左右に10pxの余白 */
+            margin-bottom: 380px; /* 下にさらに余白を追加 */
+        }
+ 
+        .logo2 {
+            display: block;
+            width: 100px; /* 横幅を指定 */
+            margin: auto; /* 中央に配置 */
+            margin-top: 100px;
+            /* height: auto; 高さを自動調整 */
+            /* margin: 10px; 上下左右に10pxの余白 */
+            /* margin-bottom: 380px; 下にさらに余白を追加 */
+        }
+ 
+ 
+        /* サムネイルの設定 */
+        .thumbnail {
+            cursor: pointer;
+            width: 400px; /* 大きさ */
+            margin: 10px; /* 幅 */
+            border: 0px solid #00000023; /* 枠線 */
+            border-radius: 10px; /* 枠の丸み */
+        }
+        .thumbnail-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 0px;
+        }
+        .thumbnail-item {
+            display: flex;
+            flex-direction: column; /* 縦に並べる */
+            align-items: center; /* 中央揃え */
+            text-align: center; /* テキストを中央揃え */
+            margin: 0px; /* コンテナの余白 */
+        }
+        /* サムネイル外のタイトルの設定 */
+        .thumbnail-title{
+            margin-bottom: -10px; /* 画像との間の余白 */
+            font-size: 28px; /* テキストのサイズ */
+            color: rgb(255, 251, 0); /* 文字色 */
+        }
+        /* サムネイル外の名前の設定 */
+        .thumbnail-text {
+            margin-top: -5px; /* 画像との間の余白 */
+            font-size: 18px; /* テキストのサイズ */
+            color: #ffffff; /* 文字色 */
+        }
+ 
+        .thumbnail-Other{
+            margin-top: -20px; /* 画像との間の余白 */
+            font-size: 14px; /* テキストのサイズ */
+            color: #ffffff; /* 文字色 */
+        }
+ 
+ 
+ 
+        /* モーダルの設定 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: left;
+            max-width: 600px;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+        .modal img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        .modal-content p strong {
+            color: #000000; /* ラベル（希望職種、名前、開発環境など）の文字色 */
+        }
+ 
+        #modalTitle {
+            font-size: 40px; /* フォントサイズ */
+        }
+        #mode,
+        #modalTitle,
+        #modalJob,
+        #modalName,
+        #modalEnvironment,
+        #modalGenre,
+        #modalDescription {
+            color: #000000; /* モーダル内のテキスト色 */
+        }
+ 
+        iframe {
+            width: 100%;
+            max-width: 560px;
+            height: 315px;
+            margin-bottom: 20px;
+        }
+        .close {
+            position: relative;
+            top: 0px;
+            right: 0px;
+            font-size: 50px;
+            color: #000000;
+            cursor: pointer;
+        }
+        .modal-content p {
+            margin: 10px 0;
+        }
+        .github-link {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        /* ヘッダーごとに色を変更する */
+        h1:nth-of-type(1) {
+            border-left: solid 30px yellow; /* 左側に太い黄色の境界線 */
+            border-bottom: solid 2px yellow; /* 下に細い黄色の境界線 */
+            color: rgb(240, 255, 172); /* 文字色を青に変更 */
+        }
+ 
+        h1:nth-of-type(2) {
+            border-left: solid 30px rgb(255, 0, 0); /* 左側に太い黄色の境界線 */
+            border-bottom: solid 2px rgb(255, 0, 0); /* 下に細い黄色の境界線 */
+            color: #ff4f7b;
+        }
+
+        h1:nth-of-type(3) {
+            border-left: solid 30px rgb(234, 0, 255); /* 左側に太い黄色の境界線 */
+            border-bottom: solid 2px rgb(225, 0, 255); /* 下に細い黄色の境界線 */
+            color: #e24fff;
+        }
+ 
+        h1:nth-of-type(4) {
+            border-left: solid 30px yellow; /* 左側に太い黄色の境界線 */
+            border-bottom: solid 2px yellow; /* 下に細い黄色の境界線 */
+            color: rgb(240, 255, 172); /* 文字色を青に変更 */
+        }
+ 
+        h1:nth-of-type(5) {
+            border-left: solid 30px rgb(255, 0, 0); /* 左側に太い黄色の境界線 */
+            border-bottom: solid 2px rgb(255, 0, 0); /* 下に細い黄色の境界線 */
+            color: #ff4f7b;
+        }
+
+        h1:nth-of-type(6) {
+            border-left: solid 30px rgb(234, 0, 255); /* 左側に太い黄色の境界線 */
+            border-bottom: solid 2px rgb(225, 0, 255); /* 下に細い黄色の境界線 */
+            color: #e24fff;
+        }
+ 
+        /* 見出しh1設定 */
+        h1{
+            line-height: 1.5; /* 行間の設定 */
+            padding: 7px 0 7px 18px; /* 上下と左に余白を設定 */
+            font-size: 36px; /* フォントサイズ */
+            font-weight: bold; /* 太字にする */
+            margin-left: 406px; /* 左に10pxずらす */
+            margin: 0px auto; /* 中央に配置 */
+        }
+    </style>
+</head>
+<body>
+    <div class = "bg"></div>
+   
+        <img src="Works/fko_logo.png" class="logo">
+    </a>
+    <!-- ホバーエフェクト -->
+    <div class="bluelight">
+        <a href="#">25夏作品集</a>
+    </div>
+    <!-- ゲーム2年の見出し -->
+    <h1 id="game2-heading"></h1>
+    <div id="game2-thumbnails-container" class="thumbnail-container"></div>
+ 
+    <!-- ゲーム1年の見出し -->
+    <h1 id="game1-heading"></h1>
+    <div id="game1-thumbnails-container" class="thumbnail-container"></div>
+
+    <!-- ゲーム0年の見出し -->
+    <h1 id="game0-heading"></h1>
+    <div id="game0-thumbnails-container" class="thumbnail-container"></div>
+ 
+    <!-- CG2年の見出し -->
+    <h1 id="cg2-heading"></h1>
+    <div id="cg2-thumbnails-container" class="thumbnail-container"></div>
+ 
+    <!-- CG1年の見出し -->
+    <h1 id="cg1-heading"></h1>
+    <div id="cg1-thumbnails-container" class="thumbnail-container"></div>
+
+    <!-- CG0年の見出し -->
+    <h1 id="cg0-heading"></h1>
+    <div id="cg0-thumbnails-container" class="thumbnail-container"></div>
+ 
+    <!-- モーダル -->
+    <div id="modal" class="modal">
+        <div class="modal-content" id="modalContent">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle"></h2>
+            <iframe id="modalVideo" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <p><strong>希望職種:</strong> <span id="modalJob"></span></p>
+            <p><strong>名前:</strong> <span id="modalName"></span></p>
+            <p id="modalEnvironmentWrapper"><strong>開発環境:</strong> <span id="modalEnvironment"></span></p>      
+            <p id="modalGenreWrapper"><strong>ジャンル:</strong> <span id="modalGenre"></span></p>
+            <p><strong>説明文:</strong> <span id="modalDescription"></span></p>
+            <p class="github-link"><a id="modalGitHub" href="" target="_blank">GitHub リンク</a></p>
+            <img id="modalFace" src="" alt="顔写真" style="max-width: 100px; border-radius: 10%; margin-bottom: 10px;">
+            <img id="modalImage" src="" alt="作品画像">
+            <img id="modalImage2" src="" alt="作品画像">
+        </div>
+    </div>
+   
+   
+        <img src="Works/fic_logo.jpg" class="logo2">
+   
+       <!-- 編集ボタン（複数） -->
+<!--<button class="edit-button" data-csv="GameData2年.csv" data-container="game2-thumbnails-container" data-heading="game2-heading" data-title="ゲーム3年 (26卒)">Game3年編集</button>
+<button class="edit-button" data-csv="GameData1年.csv" data-container="game1-thumbnails-container" data-heading="game1-heading" data-title="ゲーム2年 (27卒)">Game2年編集</button>
+<button class="edit-button" data-csv="GameData0年.csv" data-container="game0-thumbnails-container" data-heading="game0-heading" data-title="ゲーム1年 (28卒)">Game1年編集</button>
+<button class="edit-button" data-csv="CGData2年.csv" data-container="cg2-thumbnails-container" data-heading="cg2-heading" data-title="CG3年 (26卒)">CG3年編集</button>
+<button class="edit-button" data-csv="CGData1年.csv" data-container="cg1-thumbnails-container" data-heading="cg1-heading" data-title="CG2年 (27卒)">CG2年編集</button>
+<button class="edit-button" data-csv="CGData0年.csv" data-container="cg0-thumbnails-container" data-heading="cg0-heading" data-title="CG1年 (28卒)">CG1年編集</button>-->
+
+ 
+
+<!-- 編集モーダル -->
+<div id="editModal" class="modal">
+    <div class="modal-content" style="max-width:90%; max-height:90%;">
+        <span id="editClose" class="close">&times;</span>
+        <h2 style="color:black;">CSV編集</h2>
+        <div id="csvTableContainer" style="overflow:auto; max-height:60vh;"></div>
+        <button id="saveCSV" style="margin-top:20px; font-size:16px;">保存</button>
+    </div>
+</div>
+ 
+ 
+</body>
+ 
+<script>
+    // CSVデータを読み込む
+    const csvFiles = [
+        { heading: 'ゲーム3年 (26卒)', filePath: 'GameData2年.csv', containerId: 'game2-thumbnails-container', headingId: 'game2-heading', isGame: true },
+        { heading: 'ゲーム2年 (27卒)', filePath: 'GameData1年.csv', containerId: 'game1-thumbnails-container', headingId: 'game1-heading', isGame: true },
+        { heading: 'ゲーム　期待の1年生 (28卒)', filePath: 'GameData0年.csv', containerId: 'game0-thumbnails-container', headingId: 'game0-heading', isGame: true },
+        { heading: 'CG3年 (26卒)', filePath: 'CGData2年.csv', containerId: 'cg2-thumbnails-container', headingId: 'cg2-heading', isCG: true },
+        { heading: 'CG2年 (27卒)', filePath: 'CGData1年.csv', containerId: 'cg1-thumbnails-container', headingId: 'cg1-heading', isCG: true },
+        { heading: 'CG　期待の１年生 (28卒)', filePath: 'CGData0年.csv', containerId: 'cg0-thumbnails-container', headingId: 'cg0-heading', isCG: true },
+    ];
+ 
+    // ゲームとCGのCSVをそれぞれ読み込む
+    csvFiles.forEach(csv => {
+        loadCSV(csv.filePath, csv.heading, csv.containerId, csv.headingId, csv.isCG, csv.isGame);
+    });
+ 
+    // モーダル関連の要素
+    const modal = document.getElementById('modal');
+    const modalContent = document.getElementById('modalContent');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalJob = document.getElementById('modalJob');
+    const modalName = document.getElementById('modalName');
+    const modalEnvironment = document.getElementById('modalEnvironment');
+    const modalGenre = document.getElementById('modalGenre');
+    const modalDescription = document.getElementById('modalDescription');
+    const modalFace = document.getElementById('modalFace');
+    const modalImage = document.getElementById('modalImage');
+    const modalImage2 = document.getElementById('modalImage2');
+    const modalVideo = document.getElementById('modalVideo');
+    const modalGitHub = document.getElementById('modalGitHub');
+    const close = document.querySelector('.close');
+ 
+    // CSVを読み込んで処理する関数
+    async function loadCSV(filePath, headingText, containerId, headingId, isCG = false, isGame = false) {
+    const response = await fetch(filePath + '?t=' + new Date().getTime()); // キャッシュ防止
+    const data = await response.text();
+
+    document.getElementById(headingId).textContent = headingText;
+    const rows = data.split('\n').slice(3); // ヘッダーをスキップ
+    const container = document.getElementById(containerId);
+    container.innerHTML = ''; // ← 追加：初期化してから再描画
+
+    rows.forEach(row => {
+        const columns = row.split(',');
+ 
+            // ゲーム用とCG用で異なる処理をする
+            if (isCG) {
+                const itemContainer = document.createElement('div'); // サムネイルと文字をまとめるコンテナ
+                    itemContainer.className = 'thumbnail-item';
+                // CG用のデータ項目
+                const job = columns[0]?.trim(); // 希望職種
+                const name = columns[1]?.trim(); // 名前
+                const facePhoto = columns[2]?.trim(); // 顔写真
+                const thumbnailSrc = columns[3]?.trim(); // 作品写真
+                const description = columns[4]?.trim(); // 説明文
+                const viViVitURL = columns[5]?.trim(); // ViViVit URL
+                const videoSrc = columns[6]?.trim(); // YouTube動画
+                const thumbnailSrc2 = columns[7]?.trim(); // 作品写真2枚目
+ 
+                // サムネイル画像が存在する場合に要素を生成
+                if (thumbnailSrc) {
+                    const img = document.createElement('img');
+                    img.src = thumbnailSrc;
+                    img.alt = name;
+                    img.className = 'thumbnail';
+                    img.setAttribute('data-job', job);
+                    img.setAttribute('data-name', name);
+                    img.setAttribute('data-face', facePhoto);
+                    img.setAttribute('data-description', description);
+                    img.setAttribute('data-vivivit', viViVitURL);
+                    img.setAttribute('data-video', videoSrc);
+                    img.src2 = thumbnailSrc2;
+ 
+                    // サムネイルをクリックしたときの処理を追加
+                    img.addEventListener('click', () => {
+                        modal.style.display = 'flex';
+                        modalContent.scrollTop = 0;
+                        modalTitle.textContent = '';
+                        modalJob.textContent = job;
+                        modalName.textContent = name;
+                        modalDescription.textContent = description;
+ 
+                        // 顔写真がある場合のみ表示
+                        if (facePhoto) {
+                            modalFace.src = facePhoto;
+                            modalFace.style.display = 'block';
+                        } else {
+                            //modalFace.src = 'Faces/face.jpg';
+                            modalFace.style.display = 'none';
+                        }
+                        
+                        // 動画がある場合のみ表示
+                       if (videoSrc) {
+                            modalVideo.src = convertToEmbedURL(videoSrc.trim());
+                            modalVideo.style.display = 'block';
+                    } else {
+                                modalVideo.style.display = 'none';
+                            }
+ 
+                        // 2マイ目の画像がある場合のみ表示
+                        if (thumbnailSrc2) {
+                            modalImage2.src = thumbnailSrc2;
+                            modalImage2.style.display = 'block';
+                        } else {
+                            modalImage2.style.display = 'none';
+                        }
+ 
+                        //modalVideo.style.display = 'none';  //動画なし
+                        document.getElementById('modalEnvironmentWrapper').style.display = 'none';
+                        document.getElementById('modalGenreWrapper').style.display = 'none';
+                        modalImage.src = thumbnailSrc;
+                       
+                       
+                        modalGitHub.href = viViVitURL;
+                        modalGitHub.textContent = viViVitURL ? 'ViViVit リンク' : '';
+                    });
+ 
+                    // 名前を表示するテキスト
+                    const nameText = document.createElement('p');
+                    nameText.textContent = name;
+                    nameText.className = 'thumbnail-text';
+ 
+                    // // タイトルを表示するテキスト
+                    // const titleText = document.createElement('p');
+                    // titleText.textContent = title;
+                    // titleText.className = 'thumbnail-title'; // 任意のクラスを設定してスタイルを調整
+ 
+                    // 希望職を表示するテキスト
+                    const DesiredJobText = document.createElement('p');
+                    DesiredJobText.textContent = job;
+                    DesiredJobText.className = 'thumbnail-Other'; // 任意のクラスを設定してスタイルを調整
+ 
+                    // コンテナに追加
+                    // itemContainer.appendChild(titleText);
+                    itemContainer.appendChild(img);
+                    itemContainer.appendChild(nameText);
+                    itemContainer.appendChild(DesiredJobText);
+ 
+                    // サムネイルの親コンテナに追加
+                    container.appendChild(itemContainer);
+ 
+                    // コンテナに追加
+                    // container.appendChild(img);
+                }
+            } else if (isGame) {
+                const itemContainer = document.createElement('div'); // サムネイルと文字をまとめるコンテナ
+                    itemContainer.className = 'thumbnail-item';
+                   
+ 
+                // ゲーム用のデータ項目
+                const job = columns[0]?.trim(); // 希望職種
+                const name = columns[1]?.trim(); // 名前
+                const facePhoto = columns[2]?.trim(); // 顔写真
+                const title = columns[3]?.trim(); // 作品名
+                const environment = columns[4]?.trim(); // 開発環境
+                const genre = columns[5]?.trim(); // ジャンル
+                const description = columns[6]?.trim(); // 説明文
+                const thumbnailSrc = columns[7]?.trim(); // 作品写真
+                const videoSrc = columns[8]?.trim(); // YouTube動画
+                const githubLink = columns[9]?.trim(); // GitHubリンク
+ 
+                // サムネイル画像が存在する場合に要素を生成
+                if (thumbnailSrc) {
+                    const img = document.createElement('img');
+                    img.src = thumbnailSrc;
+                    img.alt = title;
+                    img.className = 'thumbnail';
+                    name.className = 'thumbnail-item'
+                    img.setAttribute('data-job', job);
+                    img.setAttribute('data-name', name);
+                    img.setAttribute('data-face', facePhoto);
+                    img.setAttribute('data-title', title);
+                    img.setAttribute('data-environment', environment);
+                    img.setAttribute('data-genre', genre);
+                    img.setAttribute('data-description', description);
+                    img.setAttribute('data-video', videoSrc);
+                    img.setAttribute('data-github', githubLink);
+ 
+                    // サムネイルをクリックしたときの処理を追加
+                    img.addEventListener('click', () => {
+                        modal.style.display = 'flex';
+                        modalContent.scrollTop = 0;
+                        modalTitle.textContent = title;
+                        modalJob.textContent = job;
+                        modalName.textContent = name;
+                        modalEnvironment.textContent = environment;
+                        modalGenre.textContent = genre;
+                        modalDescription.textContent = description;
+ 
+                        // 顔写真がある場合のみ表示
+                        if (facePhoto) {
+                            modalFace.src = facePhoto;
+                            modalFace.style.display = 'block';
+                        } else {
+                            modalFace.style.display = "none";
+                        }
+ 
+                        modalImage.src = thumbnailSrc;
+                        modalImage2.style.display = 'none';
+ 
+                        if(videoSrc)
+                        {
+                            modalVideo.src = facePhoto;
+                            modalVideo.style.display = 'block';
+                        }
+                        else
+                        {
+                            modalVideo.style.display = 'none';
+                        }
+                        modalVideo.src = videoSrc;
+                        modalGitHub.href = githubLink;
+                        modalGitHub.textContent = githubLink ? '作品ダウンロードリンク' : '';
+                    });
+ 
+                    // 名前を表示するテキスト
+                    const nameText = document.createElement('p');
+                    nameText.textContent = name;
+                    nameText.className = 'thumbnail-text';
+ 
+                    // タイトルを表示するテキスト
+                    const titleText = document.createElement('p');
+                    titleText.textContent = title;
+                    titleText.className = 'thumbnail-title'; // 任意のクラスを設定してスタイルを調整
+ 
+                    // 開発環境を表示するテキスト
+                    const environmentText = document.createElement('p');
+                    environmentText.textContent = environment;
+                    environmentText.className = 'thumbnail-Other'; // 任意のクラスを設定してスタイルを調整
+ 
+ 
+                    // コンテナに追加
+                    itemContainer.appendChild(titleText);
+                    itemContainer.appendChild(img);
+                    itemContainer.appendChild(nameText);
+                    itemContainer.appendChild(environmentText);
+ 
+                    // サムネイルの親コンテナに追加
+                    container.appendChild(itemContainer);
+                }
+            }
+        });
+    }
+ 
+    // モーダルを閉じる処理
+    close.addEventListener('click', () => {
+        modal.style.display = 'none';
+        modalVideo.src = ''; // 動画を停止
+    });
+ 
+    // モーダル外をクリックした場合も閉じる
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            modalVideo.src = ''; // 動画を停止
+        }
+    });
+ 
+const editButtons = document.querySelectorAll('.edit-button');
+const editModal = document.getElementById('editModal');
+const editClose = document.getElementById('editClose');
+const csvTableContainer = document.getElementById('csvTableContainer');
+const saveCSV = document.getElementById('saveCSV');
+
+let csvData = [];
+let currentCsvFile = '';
+let currentContainerId = '';
+let currentHeadingId = '';
+let currentHeadingTitle = '';
+
+editButtons.forEach(button => {
+    button.addEventListener('click', async () => {
+        currentCsvFile = button.getAttribute('data-csv');
+        currentContainerId = button.getAttribute('data-container');
+        currentHeadingId = button.getAttribute('data-heading');
+        currentHeadingTitle = button.getAttribute('data-title');
+
+        const res = await fetch(currentCsvFile + '?t=' + new Date().getTime()); // ← キャッシュ回避
+        const text = await res.text();
+        const rows = parseCSV(text);
+        csvData = rows;
+        renderCSVTable(rows);
+        editModal.style.display = 'flex';
+    });
+});
+
+
+editClose.addEventListener('click', () => {
+    editModal.style.display = 'none';
+});
+
+editModal.addEventListener('click', (e) => {
+    if (e.target === editModal) {
+        editModal.style.display = 'none';
+    }
+});
+
+ 
+function renderCSVTable(data) {
+    const table = document.createElement('table');
+    table.style.borderCollapse = 'collapse';
+    table.style.width = '100%';
+ 
+    data.forEach((row, rowIndex) => {
+        const tr = document.createElement('tr');
+        row.forEach((cell, colIndex) => {
+            const td = document.createElement('td');
+            td.style.border = '1px solid #ccc';
+            td.style.padding = '5px';
+            const input = document.createElement('input');
+            input.value = cell;
+            input.style.width = '100%';
+            input.dataset.row = rowIndex;
+            input.dataset.col = colIndex;
+            input.addEventListener('input', (e) => {
+                csvData[e.target.dataset.row][e.target.dataset.col] = e.target.value;
+            });
+            td.appendChild(input);
+            tr.appendChild(td);
+        });
+        table.appendChild(tr);
+    });
+ 
+    csvTableContainer.innerHTML = '';
+    csvTableContainer.appendChild(table);
+}
+ 
+saveCSV.addEventListener('click', async () => {
+    const modifiedData = csvData.map(row => {
+        const newRow = [...row];
+        if (newRow[8]) {
+            newRow[8] = convertToEmbedURL(newRow[8].trim());
+        }
+        return newRow;
+    });
+
+    const res = await fetch('save_csv.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: modifiedData, file: currentCsvFile })
+    });
+
+    const result = await res.json();
+    alert(result.success ? '保存しました' : `保存に失敗しました：${result.message}`);
+
+    if (result.success) {
+    const container = document.getElementById(currentContainerId);
+    container.innerHTML = ''; // 一度クリア
+
+    await loadCSV(
+        currentCsvFile,
+        currentHeadingTitle,
+        currentContainerId,
+        currentHeadingId,
+        currentCsvFile.toLowerCase().includes('cg'),
+        currentCsvFile.toLowerCase().includes('game')
+    );
+
+    // ✅ 編集モーダルのテーブル内容も再取得・再描画
+    const res = await fetch(currentCsvFile + '?t=' + new Date().getTime());
+    const text = await res.text();
+    const rows = parseCSV(text);
+    csvData = rows;
+    renderCSVTable(csvData);
+
+    // ✅ モーダルは閉じない（再編集のため）
+    // editModal.style.display = 'none'; ←これをコメントアウト or 削除
+}
+
+});
+
+ 
+ function parseCSV(text) {
+    const rows = [];
+    let row = [];
+    let value = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (char === '"') {
+            if (inQuotes && nextChar === '"') {
+                value += '"'; // エスケープされたクォート
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+            }
+        } else if (char === ',' && !inQuotes) {
+            row.push(value);
+            value = '';
+        } else if ((char === '\n' || char === '\r') && !inQuotes) {
+            if (value || row.length > 0) {
+                row.push(value);
+                rows.push(row);
+                row = [];
+                value = '';
+            }
+            // Windows用の \r\n に対応
+            if (char === '\r' && text[i + 1] === '\n') {
+                i++;
+            }
+        } else {
+            value += char;
+        }
+    }
+
+    if (value || row.length > 0) {
+        row.push(value);
+        rows.push(row);
+    }
+
+    return rows;
+}
+
+function convertToEmbedURL(url) {
+    if (!url) return url;
+
+    // すでにembedならそのまま
+    if (/youtube\.com\/embed\//.test(url) || /youtube-nocookie\.com\/embed\//.test(url)) {
+        return url;
+    }
+
+    // youtu.be 短縮
+    const short = url.match(/https?:\/\/youtu\.be\/([a-zA-Z0-9_-]{6,})/);
+    if (short) {
+        return `https://www.youtube.com/embed/${short[1]}`;
+    }
+
+    // shorts
+    const shorts = url.match(/https?:\/\/(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]{6,})/);
+    if (shorts) {
+        return `https://www.youtube.com/embed/${shorts[1]}`;
+    }
+
+    // watch?v=
+    const watch = url.match(/[?&]v=([a-zA-Z0-9_-]{6,})/);
+    if (watch) {
+        return `https://www.youtube.com/embed/${watch[1]}`;
+    }
+
+    return url; // 変換できない場合はそのまま
+}
+
+
+ 
+</script>
+</html>
+ 
+ 

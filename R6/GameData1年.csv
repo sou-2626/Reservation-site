@@ -1,0 +1,11 @@
+﻿ゲーム/1年,福岡情報ITクリエイター専門学校/冬季作品展示会,,,,,,,,,
+希望職種,名前,Faces/顔写真,作品名,開発環境（使用ツール）,ジャンル,説明文,Works/ゲームプレイ画面,動画(youtube),URL(GitHub),動画のイチオシ！
+プログラマー,大原　太郎,Faces/1年_PG_大原太郎.jpg,◯◯◯,"C++ DxLib",3Dアクション,"35～50文字くらいで説明
+(例) 俊敏な操作で敵を倒し、迫りくる罠や障害物を乗り越える爽快感抜群のアクションゲームです",Works/作品名.png,https://www.youtube.com/embed/wE6O4fps5ic?si=VsGrFjhzwoJQbC0t,https://github.com/◯◯◯/◯◯◯.git,1:05～1:12
+プログラマー,井上　恋　,Faces/1年_PG_井上恋.jpg,BRAVEBLADE,"C++ DxLib",3Dアクション,切って、回って、撃つ！！敵を倒して進む3Dアクションゲームです。,Works/2_ren_inoue.png,https://www.youtube.com/embed/GDQGuc5HdXE,https://github.com/lovecap7/Summer2_ChangeCollidable.git,0:40~0:48
+プログラマー,中平　悠希,Faces/1年_PG_中平悠希.jpg,DarkAromor,"C++ DxLib",スタイリッシュアクション,迫りくる敵をスタイリッシュになぎ倒していくアクションゲーム！空中コンボで敵を翻弄しろ！,Works/2_yuki_nakahira.png,https://www.youtube.com/embed/_Tz_fwnmjKo,https://github.com/YukiCreative/DarkArmor,
+プログラマー,中川　怜皇,Faces/1年_PG_中川怜皇.jpg,FatalArena,"C++ DxLib",3Dアクションゲーム,アリーナ内でアイテムを活用しつつモンスターを倒し、自らの強化を行いながらウェーブをクリアするアクションゲームです。,Works/2_reo_nakagawa.png,https://www.youtube.com/embed/NnVpnrSrgpM,https://github.com/Reo000r/FatalArena,
+プログラマー,藤原　冬志,Faces/1年_PG_藤原冬志.jpg,Knight Dungeon,"C++ DxLib",3Dアクション,縦長のマップを、敵を倒しながら登っていき、頂上を目指すアクションゲームです,Works/2_keishi_fujihara.png,https://www.youtube.com/embed/avaZRM0cDEE,https://github.com/keishiF/3DGame202509.git,0:57～1:10
+プログラマー,志鷹　瑛仁,Faces/1年_PG_志鷹瑛仁.jpg,WarriorAdventure,"C++ DxLib",ベルトスクロールアクション,現れる敵を全員ぶっ飛ばして進むベルトスクロールアクションです。,Works/2_eiji_shitaka.png,https://www.youtube.com/embed/e_73Qe0tgqU,https://github.com/shiHawk/MagicAndSwordAdventure.git,
+プログラマー,由留部　瑛人,Faces/1年_PG_由留部瑛人.jpg,WAVEBREAKER,"C++ DxLib",アクションシューティング,迫りくるゾンビの群れを銃撃とタックル攻撃で切り抜けるアクションシューティングゲームです。,Works/2_Eito_Yurube.png,https://www.youtube.com/embed/PAxSEGXrm_4,https://github.com/meronpanun/MyGame3D2.git,
+プログラマー,安藤　歩夢,Faces/1年_PG_安藤歩夢.jpg,さたどんアクション,"C++ DxLib",3Dアクション,ジャンプを使用し、敵を避け、生き残る3Dアクションゲームです,Works/2_ayumu_ando.png,https://www.youtube.com/embed/_vztBwpDkPM,https://github.com/Kyea2500/3DGame_2025Summer.git,
