@@ -69,40 +69,81 @@
     </table>
 
     <script>
-        // 管理者ログイン確認
-        if (sessionStorage.getItem("isAdminLoggedIn") !== "true") {
-            window.location.href = "admin_login.html";
+        // ==== ローカル日付ヘルパ（UTCズレ防止） ====
+        function pad2(n) { return String(n).padStart(2, '0'); }
+        // "YYYY-MM-DD" -> local Date(00:00)
+        function parseYmdToLocalDate(ymd) {
+            const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd || "");
+            if (!m) return null;
+            const y = +m[1], mo = +m[2], d = +m[3];
+            return new Date(y, mo - 1, d);
+        }
+        // local Date -> "YYYY-MM-DD"
+        function formatLocalDateToYmd(date) {
+            return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+        }
+        function addDaysLocal(date, days) {
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
         }
 
-        function getDatabase() {
-            const data = localStorage.getItem("calendarData");
-            return data ? JSON.parse(data) : { blockedDates: [], reservations: [] };
+        // ==== API（キャッシュ無効化 & フォーマットゆれ吸収） ====
+        async function fetchBlocked() {
+            const res = await fetch('./api.php?action=blocked_list&ts=' + Date.now(), {
+                headers: { 'Cache-Control': 'no-store' },
+                cache: 'no-store'
+            });
+            const raw = await res.json();
+            // APIが ["2025-10-01", ...] または [{date:"2025-10-01"}, ...] の両方に耐性
+            const list = Array.isArray(raw) ? raw.map(x => {
+                if (typeof x === 'string') return { date: x };
+                if (x && typeof x === 'object') return { date: x.date || x['日付'] || '' };
+                return { date: '' };
+            }).filter(i => i.date) : [];
+            // 重複除去
+            const uniq = Array.from(new Set(list.map(i => i.date))).map(d => ({ date: d }));
+            // 日付順
+            uniq.sort((a, b) => a.date.localeCompare(b.date));
+            return uniq;
         }
 
-        function saveDatabase(db) {
-            localStorage.setItem("calendarData", JSON.stringify(db));
+        async function addBlocked(date) {
+            // reason はサーバー側で不要でも送っても問題なし（無視される）
+            const res = await fetch('./api.php?action=blocked_add&ts=' + Date.now(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+                cache: 'no-store',
+                body: JSON.stringify({ date })
+            });
+            return res.json();
         }
 
-        function renderBlockedDates() {
-            const db = getDatabase();
-            const blocked = db.blockedDates;
-            const tbody = document.querySelector("#blocked-list tbody");
-            tbody.innerHTML = "";
+        async function deleteBlocked(date) {
+            const res = await fetch('./api.php?action=blocked_delete&ts=' + Date.now(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+                cache: 'no-store',
+                body: JSON.stringify({ date })
+            });
+            return res.json();
+        }
 
-            blocked.forEach((dateStr, idx) => {
-                const tr = document.createElement("tr");
-                const tdDate = document.createElement("td");
-                tdDate.textContent = dateStr;
-
-                const tdOp = document.createElement("td");
-                const btn = document.createElement("button");
-                btn.textContent = "削除";
-                btn.onclick = () => {
-                    db.blockedDates.splice(idx, 1);
-                    saveDatabase(db);
-                    renderBlockedDates();
+        // ==== 画面描画 ====
+        async function renderBlockedDates() {
+            const list = await fetchBlocked();
+            const tbody = document.querySelector('#blocked-list tbody');
+            tbody.innerHTML = '';
+            list.forEach(item => {
+                const tr = document.createElement('tr');
+                const tdDate = document.createElement('td');
+                tdDate.textContent = item.date;
+                const tdOp = document.createElement('td');
+                const btn = document.createElement('button');
+                btn.textContent = '削除';
+                btn.onclick = async () => {
+                    const r = await deleteBlocked(item.date);
+                    if (r && r.ok === false) { alert(r.error || '削除に失敗しました'); return; }
+                    await renderBlockedDates();
                 };
-
                 tdOp.appendChild(btn);
                 tr.appendChild(tdDate);
                 tr.appendChild(tdOp);
@@ -110,68 +151,47 @@
             });
         }
 
-        function addSingleDate() {
-            const input = document.getElementById("blocked-date-input");
-            const dateValue = input.value;
-            if (!dateValue) {
-                alert("日付を選んでください");
-                return;
-            }
-
-            const db = getDatabase();
-            if (!db.blockedDates.includes(dateValue)) {
-                db.blockedDates.push(dateValue);
-                saveDatabase(db);
-                renderBlockedDates();
-            } else {
-                alert("すでに予約不可日として設定されています");
-            }
+        // ==== 追加系（単日 / 範囲） ====
+        async function addSingleDate() {
+            const v = document.getElementById('blocked-date-input').value; // "YYYY-MM-DD"
+            if (!v) return alert('日付を選択してください');
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return alert('日付はYYYY-MM-DDで指定してください');
+            const r = await addBlocked(v); // ← 文字列そのまま送信（UTCにしない）
+            if (r && r.ok === false) return alert(r.error || '追加に失敗しました');
+            await renderBlockedDates();
         }
 
-        function addDateRange() {
-            const start = document.getElementById("start-date-input").value;
-            const end = document.getElementById("end-date-input").value;
+        async function addDateRange() {
+            const s = document.getElementById('start-date-input').value; // "YYYY-MM-DD"
+            const e = document.getElementById('end-date-input').value;
+            if (!s || !e) return alert('開始日と終了日を指定してください');
 
-            if (!start || !end) {
-                alert("開始日と終了日を両方選んでください");
-                return;
+            const sd = parseYmdToLocalDate(s); // ← ローカルDate
+            const ed = parseYmdToLocalDate(e);
+            if (!sd || !ed) return alert('日付の形式が不正です');
+            if (sd > ed) return alert('日付の範囲が不正です');
+
+            // 両端を含めてローカル日付で1日ずつ追加（UTC変換しない）
+            for (let d = new Date(sd); d <= ed; d = addDaysLocal(d, 1)) {
+                const ymd = formatLocalDateToYmd(d);   // ← "YYYY-MM-DD" をローカルで生成
+                const r = await addBlocked(ymd);
+                if (r && r.ok === false) return alert(r.error || '追加に失敗しました');
             }
-
-            const startDate = new Date(start);
-            const endDate = new Date(end);
-
-            if (startDate > endDate) {
-                alert("開始日は終了日より前にしてください");
-                return;
-            }
-
-            const db = getDatabase();
-            let added = 0;
-
-            for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-                const iso = d.toISOString().split("T")[0];
-                if (!db.blockedDates.includes(iso)) {
-                    db.blockedDates.push(iso);
-                    added++;
-                }
-            }
-
-            if (added > 0) {
-                saveDatabase(db);
-                renderBlockedDates();
-                alert(`${added}件の日付を追加しました`);
-            } else {
-                alert("すべての指定日はすでに予約不可になっています");
-            }
+            await renderBlockedDates();
         }
 
+        // ==== 戻るボタン ====
+        function goBack() { window.location.href = 'admin_dashboard.html'; }
 
-        function goBack() {
-            window.location.href = "admin_dashboard.html";
-        }
+        // ==== グローバルへ公開（HTMLの onclick をそのまま活かす） ====
+        window.addSingleDate = addSingleDate;
+        window.addDateRange = addDateRange;
+        window.goBack = goBack;
 
+        // 初期描画
         renderBlockedDates();
     </script>
+
 </body>
 
 </html>

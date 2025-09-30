@@ -1,17 +1,41 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <title>アカウント設定</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    h1 { text-align: center; }
-    .section { margin-top: 30px; }
-    label, input { display: block; margin: 5px 0; }
-    input { padding: 5px; width: 250px; }
-    button { margin-top: 10px; padding: 8px 12px; }
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    label,
+    input {
+      display: block;
+      margin: 5px 0;
+    }
+
+    input {
+      padding: 5px;
+      width: 250px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 8px 12px;
+    }
   </style>
 </head>
+
 <body>
   <h1>アカウント設定</h1>
 
@@ -38,43 +62,70 @@
   </div>
 
   <script>
+    // 管理者ログイン確認（既存の方法に合わせる）
     if (sessionStorage.getItem("isAdminLoggedIn") !== "true") {
       window.location.href = "admin_login.html";
     }
 
-    function getDatabase() {
-      const data = localStorage.getItem("calendarData");
-      return data ? JSON.parse(data) : {
-        blockedDates: [],
-        reservations: [],
-        accounts: {
-          user: { id: "user", pass: "userpass" },
-          admin: { id: "admin", pass: "adminpass" }
+    // 現在のIDをサーバーから取得して入力欄に反映
+    async function loadCurrentIds() {
+      try {
+        const res = await fetch('./auth.php?action=get_ids&ts=' + Date.now(), {
+          headers: { 'Cache-Control': 'no-store' }, cache: 'no-store'
+        });
+        const json = await res.json();
+        // 既存のIDを初期表示（パスワードは安全のため表示しない）
+        if (json?.user?.id) document.getElementById('user-id').value = json.user.id;
+        if (json?.admin?.id) document.getElementById('admin-id').value = json.admin.id;
+      } catch (e) {
+        console.error(e);
+        alert('現在のIDを取得できませんでした');
+      }
+    }
+
+    // role: 'user' | 'admin'
+    async function updateAccount(role) {
+      const idInput = document.getElementById(role + '-id').value.trim();
+      const passInput = document.getElementById(role + '-pass').value;
+
+      // 渡したプロパティだけ更新される（空欄は上書きしない）
+      const payload = { role };
+      if (idInput) payload.id = idInput;
+      if (passInput) payload.password = passInput;
+
+      try {
+        const res = await fetch('./auth.php?action=update_account&ts=' + Date.now(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+          cache: 'no-store',
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json && json.ok === false) {
+          alert(json.error || '更新に失敗しました');
+          return;
         }
-      };
-    }
-
-    function saveDatabase(db) {
-      localStorage.setItem("calendarData", JSON.stringify(db));
-    }
-
-    function updateAccount(type) {
-      const db = getDatabase();
-      const id = document.getElementById(type + '-id').value;
-      const pass = document.getElementById(type + '-pass').value;
-
-      if (!db.accounts) db.accounts = { user: {}, admin: {} };
-
-      if (id) db.accounts[type].id = id;
-      if (pass) db.accounts[type].pass = pass;
-
-      saveDatabase(db);
-      alert((type === 'admin' ? '管理者' : 'ユーザー') + '情報を更新しました');
+        // 成功メッセージ（画面の文言に合わせる）
+        alert((role === 'admin' ? '管理者' : 'ユーザー') + '情報を更新しました');
+        // パスワード欄は毎回クリア
+        document.getElementById(role + '-pass').value = '';
+      } catch (e) {
+        console.error(e);
+        alert('通信エラー');
+      }
     }
 
     function goBack() {
       window.location.href = "admin_dashboard.html";
     }
+
+    // 既存の onclick を使うために公開
+    window.updateAccount = updateAccount;
+    window.goBack = goBack;
+
+    // 初期表示時にIDをロード
+    loadCurrentIds();
   </script>
 </body>
+
 </html>
