@@ -7,13 +7,72 @@
     body { font-family: sans-serif; padding: 20px; }
     h1 { margin: 0 0 6px; }
     #msg { font-size: 14px; color: #666; }
-    table { border-collapse: collapse; width: 100%; margin-top: 12px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 12px;
+      table-layout: fixed;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+      vertical-align: middle;
+      /* 全セル1行表示＆はみ出しは… */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     th { background: #eee; }
+
     .btn {
       display:inline-block; padding:8px 14px; border-radius:6px;
       background:#2563eb; color:#fff; text-decoration:none; font-weight:600; border:0; cursor:pointer;
     }
+    .btn-secondary { background:#6b7280; }
+    .btn-danger    { background:#dc2626; }
+    .cell-actions>button { margin-right: 6px; }
+
+    /* 企業名は残り幅すべてを使う */
+    .col-name { width: auto; }
+    .c-name { max-width: 100%; }
+
+    /* 備考インジケータ */
+    .note-indicator {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
+    }
+    .note-dot { width:10px; height:10px; border-radius:50%; display:inline-block; vertical-align:middle; }
+    .note-dot.on  { background:#2563eb; } /* あり=青 */
+    .note-dot.off { background:#c4c4c4; } /* なし=グレー */
+
+    /* === モーダル === */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, .45);
+      display: none; align-items: center; justify-content: center; z-index: 1000;
+    }
+    .modal {
+      width: 560px; max-width: calc(100% - 24px);
+      background:#fff; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.2); padding:16px 18px;
+    }
+    .modal h2 { margin: 0 0 10px; }
+    .row {
+      display:grid; grid-template-columns:140px 1fr; gap:8px; align-items:center; margin:10px 0;
+    }
+    .modal label { color:#444; }
+    .modal input[type="date"],
+    .modal input[type="text"],
+    .modal input[type="email"],
+    .modal textarea,
+    .modal select {
+      width: 100%; padding: 8px; border: 1px solid #bbb; border-radius: 6px; box-sizing: border-box;
+    }
+    .modal textarea { min-height: 90px; resize: vertical; }
+    .modal .actions { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }
+    .hidden { display: none !important; }
+    .radio-row { display:flex; gap:18px; align-items:center; flex-wrap: wrap; }
+    .radio-row input[type="text"] { width: 220px; }
+    .readonly { background:#f9fafb; border-color:#e5e7eb; color:#374151; }
   </style>
 </head>
 <body>
@@ -21,9 +80,18 @@
   <div id="msg">読み込み中…</div>
 
   <table id="reservation-table">
+    <!-- ID列は削除。企業名列は auto（残り全部） -->
+    <colgroup>
+      <col style="width:120px;"><!-- 日付 -->
+      <col style="width:110px;"><!-- 時間 -->
+      <col class="col-name"><!-- 企業名：残り全部 -->
+      <col style="width:72px;"><!-- 匿名 -->
+      <col style="width:100px;"><!-- カテゴリ -->
+      <col style="width:110px;"><!-- 備考 -->
+      <col style="width:164px;"><!-- 操作 -->
+    </colgroup>
     <thead>
       <tr>
-        <th>ID</th>
         <th>日付</th>
         <th>時間</th>
         <th>企業名</th>
@@ -33,33 +101,125 @@
         <th>操作</th>
       </tr>
     </thead>
-    <tbody><!-- ここに行を追加 --></tbody>
+    <tbody><!-- 行を追加 --></tbody>
   </table>
 
   <div style="margin-top:16px;">
     <button type="button" class="btn" onclick="location.href='admin_dashboard.html'">管理画面に戻る</button>
   </div>
 
+  <!-- ===== 確認モーダル（→編集に切替可能） ===== -->
+  <div id="modal-backdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+      <h2 id="edit-title">予約の確認</h2>
+
+      <!-- 予約IDの表示行は削除（内部では保持） -->
+
+      <div class="row">
+        <label>企業名</label>
+        <div><span id="m-name" class="readonly"></span></div>
+      </div>
+
+      <div class="row">
+        <label>匿名</label>
+        <div><span id="m-anon" class="readonly"></span></div>
+      </div>
+
+      <div class="row">
+        <label for="m-email">メールアドレス</label>
+        <input id="m-email" type="email" class="readonly" readonly />
+      </div>
+
+      <div class="row">
+        <label for="m-date">日付</label>
+        <input id="m-date" type="date" class="readonly" readonly />
+      </div>
+
+      <div class="row">
+        <label>時間</label>
+        <div class="radio-row">
+          <label><input type="radio" name="m-time" value="午前" disabled> 午前</label>
+          <label><input type="radio" name="m-time" value="午後" disabled> 午後</label>
+          <label><input type="radio" name="m-time" value="_custom" disabled> その他</label>
+          <input id="m-time-custom" type="text" placeholder="例: 10:00〜 / 一日中 など" class="hidden readonly" readonly />
+        </div>
+      </div>
+
+      <div class="row">
+        <label for="m-cat">カテゴリ</label>
+        <select id="m-cat" class="readonly" disabled>
+          <option value=""></option>
+          <option value="CG">CG</option>
+          <option value="ゲーム">ゲーム</option>
+          <option value="両方">両方</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <label for="m-note">備考</label>
+        <textarea id="m-note" class="readonly" readonly placeholder="メモや連絡事項"></textarea>
+      </div>
+
+      <div class="actions">
+        <button id="m-edit" class="btn btn-secondary">編集する</button>
+        <button id="m-save" class="btn hidden">保存</button>
+        <button id="m-cancel" class="btn btn-secondary">閉じる</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const API_URL = "./api.php";
 
-    function isoToJP(iso) {
+    // ---- Utils ----
+    function isoToSlash(iso) {
       const m = iso?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
       if (!m) return iso ?? "";
       const [_, y, mo, d] = m;
-      return `${y}年${+mo}月${+d}日`;
+      return `${y}/${mo}/${d}`; // YYYY/MM/DD
+    }
+    function esc(s) {
+      return String(s ?? '')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+    function memoCompat(s) { return { anonymous: 'いいえ', category: '', note: (s || '') }; }
+    function hasNote(value) { return (value ?? '').toString().trim().length > 0; }
+
+    // ---- API ----
+    async function apiList() {
+      const res = await fetch(`${API_URL}?action=list&ts=${Date.now()}`, { headers: { 'Cache-Control': 'no-store' }, cache: 'no-store' });
+      return res.json();
+    }
+    async function apiDelete(id) {
+      const res = await fetch(`${API_URL}?action=delete&ts=${Date.now()}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+        cache: 'no-store',
+        body: JSON.stringify({ id })
+      });
+      return res.json();
+    }
+    async function apiUpdateReservation({ id, date, time, category, note, contact }) {
+      const res = await fetch(`${API_URL}?action=update&ts=${Date.now()}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+        cache: 'no-store',
+        body: JSON.stringify({ id, date, time, category, note, contact })
+      });
+      return res.json();
     }
 
+    // ---- 表示 ----
     async function loadList() {
       const tbody = document.querySelector('#reservation-table tbody');
-      const msg   = document.getElementById('msg');
+      const msg = document.getElementById('msg');
       tbody.innerHTML = "";
       msg.textContent = "読み込み中…";
 
       try {
-        const res  = await fetch(`${API_URL}?action=list`);
-        const data = await res.json();
-
+        const data = await apiList();
         if (data && data.ok === false) {
           msg.textContent = "読み取りが失敗しました: " + (data.error || "不明なエラー");
           return;
@@ -72,36 +232,27 @@
           return ka.localeCompare(kb);
         });
 
-        if (!list.length) {
-          msg.textContent = "予約はありません";
-          return;
-        }
+        if (!list.length) { msg.textContent = "予約はありません"; return; }
         msg.textContent = "";
 
         list.forEach(r => {
           let anonymous = r.anonymous;
-          let category  = r.category;
-          let note      = r.note;
-
+          let category = r.category;
+          let note = r.note;
           if (typeof anonymous === "undefined" && typeof category === "undefined" && typeof note === "undefined" && r.memo) {
-            const m = fromMemo(r.memo);
-            anonymous = m.anonymous;
-            category  = m.category;
-            note      = m.note;
+            const m = memoCompat(r.memo);
+            anonymous = m.anonymous; category = m.category; note = m.note;
           }
-
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${r.id ?? ''}</td>
-            <td>${isoToJP(r.date ?? '')}</td>
-            <td>${r.time ?? ''}</td>
-            <td>${r.name ?? ''}</td>
-            <td>${(anonymous === true || anonymous === "はい") ? "はい" : (anonymous || "いいえ")}</td>
-            <td>${category ?? ''}</td>
-            <td>${note ?? ''}</td>
-            <td><button data-id="${r.id}" class="delete">削除</button></td>
-          `;
-          tbody.appendChild(tr);
+          appendRow({
+            id: r.id ?? '',
+            date: r.date ?? '',
+            time: r.time ?? '',
+            name: r.name ?? '',
+            contact: r.contact ?? '', // メール（UIには出さない）
+            anonymous: (anonymous === true || anonymous === "はい") ? "はい" : (anonymous || "いいえ"),
+            category: category ?? '',
+            note: note ?? ''
+          });
         });
       } catch (e) {
         console.error(e);
@@ -109,28 +260,212 @@
       }
     }
 
+    // 行追加（ID列は出さない。IDは data-id に保持）
+    function appendRow(row) {
+      const tbody = document.querySelector('#reservation-table tbody');
+      const tr = document.createElement('tr');
+      tr.dataset.id = row.id;
+      tr.dataset.note = row.note;
+      tr.dataset.cat = row.category;
+      tr.dataset.time = row.time;
+      tr.dataset.email = row.contact;
+
+      const noteExists = hasNote(row.note);
+      const notePreview = (row.note || '').toString().trim().slice(0, 40);
+
+      tr.innerHTML = `
+        <td class="c-date" data-iso="${esc(row.date)}" title="${esc(row.date)}">${esc(isoToSlash(row.date))}</td>
+        <td class="c-time" title="${esc(row.time)}">${esc(row.time)}</td>
+        <td class="c-name" title="${esc(row.name)}">${esc(row.name)}</td>
+        <td class="c-anon">${esc(row.anonymous)}</td>
+        <td class="c-cat">${esc(row.category)}</td>
+        <td class="c-note-flag">
+          <span class="note-indicator" title="${noteExists ? esc(notePreview || '備考あり') : '備考なし'}">
+            <span class="note-dot ${noteExists ? 'on' : 'off'}" aria-hidden="true"></span>
+            <span>${noteExists ? '備考あり' : '備考なし'}</span>
+          </span>
+        </td>
+        <td class="cell-actions">
+          <button class="btn btn-secondary view">確認</button>
+          <button class="btn btn-danger delete">削除</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    // ---- モーダル制御（確認→編集）----
+    const $backdrop = document.getElementById('modal-backdrop');
+    const $mName = document.getElementById('m-name');
+    const $mAnon = document.getElementById('m-anon');
+    const $mEmail = document.getElementById('m-email');
+    const $mDate = document.getElementById('m-date');
+    const $mCat = document.getElementById('m-cat');
+    const $mNote = document.getElementById('m-note');
+    const $timeCustom = document.getElementById('m-time-custom');
+
+    const $btnEdit = document.getElementById('m-edit');
+    const $btnSave = document.getElementById('m-save');
+    const $btnCancel = document.getElementById('m-cancel');
+
+    let currentEditingId = null; // ← モーダルで編集対象のIDを内部保持
+
+    function setReadonlyMode(readonly) {
+      $mEmail.readOnly = readonly; $mEmail.classList.toggle('readonly', readonly);
+      $mDate.readOnly = readonly;  $mDate.disabled = readonly; $mDate.classList.toggle('readonly', readonly);
+      $mCat.disabled = readonly;   $mCat.classList.toggle('readonly', readonly);
+      $mNote.readOnly = readonly;  $mNote.classList.toggle('readonly', readonly);
+      document.querySelectorAll('input[name="m-time"]').forEach(r => { r.disabled = readonly; });
+      if (readonly) $timeCustom.setAttribute('readonly', 'readonly'); else $timeCustom.removeAttribute('readonly');
+
+      $btnEdit.classList.toggle('hidden', !readonly);
+      $btnSave.classList.toggle('hidden', readonly);
+    }
+
+    function openModal(rowEl) {
+      currentEditingId = Number(rowEl.dataset.id); // ← IDはここで確保
+      const iso  = rowEl.querySelector('.c-date').getAttribute('data-iso') || '';
+      const time = (rowEl.dataset.time || rowEl.querySelector('.c-time').textContent || '').trim();
+      const name = rowEl.querySelector('.c-name').textContent.trim();
+      const anon = rowEl.querySelector('.c-anon').textContent.trim();
+      const cat  = (rowEl.dataset.cat || rowEl.querySelector('.c-cat').textContent || '').trim();
+      const note = (rowEl.dataset.note || '').toString();
+      const email= (rowEl.dataset.email || '').toString();
+
+      $mName.textContent = name || '(未入力)';
+      $mAnon.textContent = anon || 'いいえ';
+      $mEmail.value = email;
+      $mDate.value = iso;
+      $mCat.value = cat || '';
+      $mNote.value = note || '';
+
+      const radios = document.querySelectorAll('input[name="m-time"]');
+      radios.forEach(r => { r.checked = false; });
+      $timeCustom.classList.add('hidden');
+      $timeCustom.value = '';
+      if (time === '午前' || time === '午後') {
+        document.querySelector(`input[name="m-time"][value="${time}"]`).checked = true;
+      } else if (time) {
+        document.querySelector(`input[name="m-time"][value="_custom"]`).checked = true;
+        $timeCustom.classList.remove('hidden');
+        $timeCustom.value = time;
+      } else {
+        document.querySelector(`input[name="m-time"][value="午前"]`).checked = true;
+      }
+
+      setReadonlyMode(true);
+      $backdrop.style.display = 'flex';
+      $backdrop.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeModal() {
+      currentEditingId = null;
+      $backdrop.style.display = 'none';
+      $backdrop.setAttribute('aria-hidden', 'true');
+    }
+
+    // その他時間の表示切替
+    document.querySelectorAll('input[name="m-time"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.value === '_custom') {
+          $timeCustom.classList.remove('hidden');
+          if (!$timeCustom.hasAttribute('readonly')) $timeCustom.focus();
+        } else {
+          $timeCustom.classList.add('hidden');
+        }
+      });
+    });
+
+    $btnEdit.addEventListener('click', () => setReadonlyMode(false));
+    $btnCancel.addEventListener('click', closeModal);
+    $backdrop.addEventListener('click', (e) => { if (e.target === $backdrop) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $backdrop.style.display === 'flex') closeModal(); });
+
+    // ---- クリックイベント（削除・確認） ----
     document.addEventListener('click', async (ev) => {
-      const btn = ev.target.closest('button.delete');
-      if (!btn) return;
-      const id = Number(btn.dataset.id);
-      if (!id) return;
-      if (!confirm(`ID: ${id} を削除します。よろしいですか？`)) return;
+      const delBtn = ev.target.closest('button.delete');
+      if (delBtn) {
+        const tr = delBtn.closest('tr');
+        const id = Number(tr.dataset.id);
+        if (!id) return;
+        if (!confirm(`削除します。よろしいですか？`)) return;
+        try {
+          const res = await apiDelete(id);
+          if (res && res.ok === true) {
+            tr.remove();
+            const msg = document.getElementById('msg');
+            if (!document.querySelector('#reservation-table tbody tr')) msg.textContent = '予約はありません';
+          } else {
+            alert("削除失敗: " + (res?.error || "不明なエラー"));
+          }
+        } catch (e) {
+          console.error(e);
+          alert("通信エラーで削除できませんでした");
+        }
+        return;
+      }
+
+      const viewBtn = ev.target.closest('button.view');
+      if (viewBtn) {
+        openModal(viewBtn.closest('tr'));
+        return;
+      }
+    });
+
+    // ---- 保存（編集モード時）----
+    document.getElementById('m-save').addEventListener('click', async () => {
+      const id = currentEditingId;
+      const email = $mEmail.value.trim();
+      const date = $mDate.value;
+      const cat  = $mCat.value;
+      const note = $mNote.value.trim();
+
+      if (!id) { alert('内部IDが取得できませんでした'); return; }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { alert('日付はYYYY-MM-DDで指定してください'); return; }
+
+      const checked = document.querySelector('input[name="m-time"]:checked');
+      let time = '';
+      if (checked) {
+        if (checked.value === '_custom') {
+          time = $timeCustom.value.trim();
+          if (!time) { alert('その他の時間を入力してください'); return; }
+        } else {
+          time = checked.value;
+        }
+      }
 
       try {
-        const res = await fetch(`${API_URL}?action=delete`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id })
-        });
-        const data = await res.json();
-        if (data && data.ok === true) {
-          await loadList();
-        } else {
-          alert("削除失敗: " + (data?.error || "不明なエラー"));
+        const res = await apiUpdateReservation({ id, date, time, category: cat, note, contact: email });
+        if (res && res.ok === false) {
+          alert(res.error || '更新に失敗しました');
+          return;
         }
+
+        // テーブルの反映（メールはUIには出さない）
+        const tr = document.querySelector(`#reservation-table tbody tr[data-id="${id}"]`);
+        if (tr) {
+          tr.querySelector('.c-date').setAttribute('data-iso', date);
+          tr.querySelector('.c-date').textContent = isoToSlash(date);
+          tr.querySelector('.c-time').textContent = time;
+          tr.querySelector('.c-cat').textContent = cat;
+          tr.dataset.note  = note;
+          tr.dataset.time  = time;
+          tr.dataset.cat   = cat;
+          tr.dataset.email = email;
+
+          const noteExists = hasNote(note);
+          const preview = (note || '').toString().trim().slice(0, 40);
+          const cell = tr.querySelector('.c-note-flag');
+          cell.innerHTML = `
+            <span class="note-indicator" title="${noteExists ? esc(preview || '備考あり') : '備考なし'}">
+              <span class="note-dot ${noteExists ? 'on' : 'off'}" aria-hidden="true"></span>
+              <span>${noteExists ? '備考あり' : '備考なし'}</span>
+            </span>`;
+        }
+        setReadonlyMode(true);
+        closeModal();
       } catch (e) {
         console.error(e);
-        alert("通信エラーで削除できませんでした");
+        alert('通信エラーで更新できませんでした');
       }
     });
 
