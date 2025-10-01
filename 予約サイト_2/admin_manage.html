@@ -1,197 +1,224 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
-    <meta charset="UTF-8">
-    <title>管理画面：予約不可日の設定</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            padding: 20px;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        th,
-        td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #eee;
-        }
-
-        input[type="date"] {
-            padding: 5px;
-        }
-
-        button {
-            padding: 5px 10px;
-            margin: 5px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約不可日管理カレンダー</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 20px; position: relative; }
+    .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; max-width: 700px; margin: 0 auto; }
+    .day { position: relative; height: 80px; padding: 5px; font-size: 12px; border: 1px solid #ccc; box-sizing: border-box; cursor: pointer; }
+    .day .date { position: absolute; top: 3px; left: 5px; font-weight: bold; }
+    .multi-selected { background-color: #88f !important; color: white; }
+    .blocked { background-color: #f99; color: white; }
+    .today { border: 2px solid #ff0000; }
+    .disabled { background-color: #eee; color: #999; pointer-events: none; }
+    .calendar-header { font-weight: bold; background-color: #eee; }
+    .top-left-btn { position: absolute; top: 10px; left: 10px; }
+    .overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 999; }
+    .modal { background: white; padding: 20px; border-radius: 8px; max-height: 80vh; overflow-y: auto; width: 80%; max-width: 400px; }
+    .modal h3 { margin-top: 0; }
+    .modal ul { list-style: none; padding-left: 0; }
+    .modal ul li { padding: 5px 0; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+    .hidden { display: none; }
+  </style>
 </head>
-
 <body>
+  <button class="top-left-btn" onclick="window.location.href='admin_dashboard.html'">管理画面に戻る</button>
 
-    <!-- 管理画面に戻るボタン -->
-    <button onclick="goBack()">← 管理画面に戻る</button>
-    <div>
-        <h3>予約不可日を追加</h3>
-        <label>単一日:</label>
-        <input type="date" id="blocked-date-input">
-        <button onclick="addSingleDate()">追加</button>
+  <h2>予約不可日管理</h2>
 
-        <h3>一括追加（範囲指定）</h3>
-        <label>開始日:</label>
-        <input type="date" id="start-date-input">
-        <label>終了日:</label>
-        <input type="date" id="end-date-input">
-        <button onclick="addDateRange()">範囲を追加</button>
+  <div style="margin: 10px;">
+    <button onclick="showBlockedList()">予約不可日一覧を表示</button>
+  </div>
+
+  <div style="margin: 20px;">
+    <button id="prev-month">◀</button>
+    <span id="current-month" style="font-weight:bold; margin: 0 10px;"></span>
+    <button id="next-month">▶</button>
+  </div>
+
+  <div class="calendar calendar-header">
+    <div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div>
+  </div>
+  <div id="multi-calendar" class="calendar"></div>
+
+  <div style="margin-top: 20px;">
+    <button onclick="submitSelectedBlockedDates()">選択した日を予約不可にする</button>
+    <button onclick="submitUnblockedDates()">選択した予約不可日を解除する</button>
+  </div>
+
+  <div id="blocked-modal" class="overlay hidden" onclick="hideBlockedList(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <h3>予約不可日一覧</h3>
+      <ul id="blocked-list"></ul>
+      <button onclick="hideBlockedList()">閉じる</button>
     </div>
+  </div>
 
-    <table id="blocked-list">
-        <thead>
-            <tr>
-                <th>日付</th>
-                <th>操作</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- 非予約日がここに表示される -->
-        </tbody>
-    </table>
+  <script>
+    const selectedBlockedDates = new Set();
+    let currentBlockedDates = [];
+    let currentYear, currentMonth;
 
-    <script>
-        // ==== ローカル日付ヘルパ（UTCズレ防止） ====
-        function pad2(n) { return String(n).padStart(2, '0'); }
-        // "YYYY-MM-DD" -> local Date(00:00)
-        function parseYmdToLocalDate(ymd) {
-            const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd || "");
-            if (!m) return null;
-            const y = +m[1], mo = +m[2], d = +m[3];
-            return new Date(y, mo - 1, d);
-        }
-        // local Date -> "YYYY-MM-DD"
-        function formatLocalDateToYmd(date) {
-            return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
-        }
-        function addDaysLocal(date, days) {
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
-        }
+    document.addEventListener('DOMContentLoaded', async () => {
+      const today = new Date();
+      currentYear = today.getFullYear();
+      currentMonth = today.getMonth();
+      await fetchBlockedDates();
+      renderSelectableCalendar(currentYear, currentMonth);
 
-        // ==== API（キャッシュ無効化 & フォーマットゆれ吸収） ====
-        async function fetchBlocked() {
-            const res = await fetch('./api.php?action=blocked_list&ts=' + Date.now(), {
-                headers: { 'Cache-Control': 'no-store' },
-                cache: 'no-store'
-            });
-            const raw = await res.json();
-            // APIが ["2025-10-01", ...] または [{date:"2025-10-01"}, ...] の両方に耐性
-            const list = Array.isArray(raw) ? raw.map(x => {
-                if (typeof x === 'string') return { date: x };
-                if (x && typeof x === 'object') return { date: x.date || x['日付'] || '' };
-                return { date: '' };
-            }).filter(i => i.date) : [];
-            // 重複除去
-            const uniq = Array.from(new Set(list.map(i => i.date))).map(d => ({ date: d }));
-            // 日付順
-            uniq.sort((a, b) => a.date.localeCompare(b.date));
-            return uniq;
+      document.getElementById('prev-month').onclick = () => {
+        const now = new Date();
+        if (currentYear > now.getFullYear() || (currentYear === now.getFullYear() && currentMonth > now.getMonth())) {
+          if (currentMonth === 0) {
+            currentMonth = 11;
+            currentYear--;
+          } else {
+            currentMonth--;
+          }
+          renderSelectableCalendar(currentYear, currentMonth);
         }
+      };
 
-        async function addBlocked(date) {
-            // reason はサーバー側で不要でも送っても問題なし（無視される）
-            const res = await fetch('./api.php?action=blocked_add&ts=' + Date.now(), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-                cache: 'no-store',
-                body: JSON.stringify({ date })
-            });
-            return res.json();
+      document.getElementById('next-month').onclick = () => {
+        if (currentMonth === 11) {
+          currentMonth = 0;
+          currentYear++;
+        } else {
+          currentMonth++;
         }
+        renderSelectableCalendar(currentYear, currentMonth);
+      };
+    });
 
-        async function deleteBlocked(date) {
-            const res = await fetch('./api.php?action=blocked_delete&ts=' + Date.now(), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-                cache: 'no-store',
-                body: JSON.stringify({ date })
-            });
-            return res.json();
+    async function fetchBlockedDates() {
+      const res = await fetch('./api.php?action=blocked_list&ts=' + Date.now());
+      const raw = await res.json();
+      currentBlockedDates = Array.isArray(raw)
+        ? raw.map(d => typeof d === 'string' ? d : d.date || d["日付"]).filter(Boolean)
+        : [];
+    }
+
+    function renderSelectableCalendar(year, month) {
+      document.getElementById('current-month').textContent = `${year}年 ${month + 1}月`;
+
+      const calendarEl = document.getElementById("multi-calendar");
+      calendarEl.innerHTML = "";
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startDay = firstDay.getDay();
+
+      for (let i = 0; i < startDay; i++) {
+        const empty = document.createElement("div");
+        calendarEl.appendChild(empty);
+      }
+
+      for (let d = 1; d <= lastDay.getDate(); d++) {
+        const dateObj = new Date(year, month, d);
+        const isoDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+        const dayEl = document.createElement("div");
+        dayEl.className = "day";
+        const dow = dateObj.getDay();
+
+        if (year === today.getFullYear() && month === today.getMonth() && d === today.getDate()) {
+          dayEl.classList.add("today");
         }
-
-        // ==== 画面描画 ====
-        async function renderBlockedDates() {
-            const list = await fetchBlocked();
-            const tbody = document.querySelector('#blocked-list tbody');
-            tbody.innerHTML = '';
-            list.forEach(item => {
-                const tr = document.createElement('tr');
-                const tdDate = document.createElement('td');
-                tdDate.textContent = item.date;
-                const tdOp = document.createElement('td');
-                const btn = document.createElement('button');
-                btn.textContent = '削除';
-                btn.onclick = async () => {
-                    const r = await deleteBlocked(item.date);
-                    if (r && r.ok === false) { alert(r.error || '削除に失敗しました'); return; }
-                    await renderBlockedDates();
-                };
-                tdOp.appendChild(btn);
-                tr.appendChild(tdDate);
-                tr.appendChild(tdOp);
-                tbody.appendChild(tr);
-            });
+        if (currentBlockedDates.includes(isoDate)) {
+          dayEl.classList.add("blocked");
+        }
+        if (dow === 0 || dow === 6) {
+          dayEl.classList.add("disabled");
         }
 
-        // ==== 追加系（単日 / 範囲） ====
-        async function addSingleDate() {
-            const v = document.getElementById('blocked-date-input').value; // "YYYY-MM-DD"
-            if (!v) return alert('日付を選択してください');
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return alert('日付はYYYY-MM-DDで指定してください');
-            const r = await addBlocked(v); // ← 文字列そのまま送信（UTCにしない）
-            if (r && r.ok === false) return alert(r.error || '追加に失敗しました');
-            await renderBlockedDates();
-        }
+        const dateLabel = document.createElement("div");
+        dateLabel.className = "date";
+        dateLabel.textContent = d;
+        dayEl.appendChild(dateLabel);
 
-        async function addDateRange() {
-            const s = document.getElementById('start-date-input').value; // "YYYY-MM-DD"
-            const e = document.getElementById('end-date-input').value;
-            if (!s || !e) return alert('開始日と終了日を指定してください');
-
-            const sd = parseYmdToLocalDate(s); // ← ローカルDate
-            const ed = parseYmdToLocalDate(e);
-            if (!sd || !ed) return alert('日付の形式が不正です');
-            if (sd > ed) return alert('日付の範囲が不正です');
-
-            // 両端を含めてローカル日付で1日ずつ追加（UTC変換しない）
-            for (let d = new Date(sd); d <= ed; d = addDaysLocal(d, 1)) {
-                const ymd = formatLocalDateToYmd(d);   // ← "YYYY-MM-DD" をローカルで生成
-                const r = await addBlocked(ymd);
-                if (r && r.ok === false) return alert(r.error || '追加に失敗しました');
+        if (!dayEl.classList.contains("disabled")) {
+          dayEl.addEventListener("click", () => {
+            if (selectedBlockedDates.has(isoDate)) {
+              selectedBlockedDates.delete(isoDate);
+              dayEl.classList.remove("multi-selected");
+            } else {
+              selectedBlockedDates.add(isoDate);
+              dayEl.classList.add("multi-selected");
             }
-            await renderBlockedDates();
+          });
         }
 
-        // ==== 戻るボタン ====
-        function goBack() { window.location.href = 'admin_dashboard.html'; }
+        calendarEl.appendChild(dayEl);
+      }
+    }
 
-        // ==== グローバルへ公開（HTMLの onclick をそのまま活かす） ====
-        window.addSingleDate = addSingleDate;
-        window.addDateRange = addDateRange;
-        window.goBack = goBack;
+    async function submitSelectedBlockedDates() {
+      if (selectedBlockedDates.size === 0) return alert("日付が選択されていません");
+      for (const ymd of selectedBlockedDates) {
+        await fetch('./api.php?action=blocked_add&ts=' + Date.now(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+          body: JSON.stringify({ date: ymd })
+        });
+      }
+      alert("追加しました");
+      selectedBlockedDates.clear();
+      await fetchBlockedDates();
+      renderSelectableCalendar(currentYear, currentMonth);
+    }
 
-        // 初期描画
-        renderBlockedDates();
-    </script>
+    async function submitUnblockedDates() {
+      if (selectedBlockedDates.size === 0) return alert("日付が選択されていません");
+      for (const ymd of selectedBlockedDates) {
+        await fetch('./api.php?action=blocked_delete&ts=' + Date.now(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+          body: JSON.stringify({ date: ymd })
+        });
+      }
+      alert("解除しました");
+      selectedBlockedDates.clear();
+      await fetchBlockedDates();
+      renderSelectableCalendar(currentYear, currentMonth);
+    }
 
+    function showBlockedList() {
+      const listEl = document.getElementById('blocked-list');
+      listEl.innerHTML = '';
+      currentBlockedDates.sort().forEach(date => {
+        const li = document.createElement('li');
+        const label = document.createElement('span');
+        const d = new Date(date);
+        label.textContent = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '削除';
+        delBtn.onclick = async () => {
+          await fetch('./api.php?action=blocked_delete&ts=' + Date.now(), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+            body: JSON.stringify({ date })
+          });
+          await fetchBlockedDates();
+          renderSelectableCalendar(currentYear, currentMonth);
+          showBlockedList();
+        };
+
+        li.appendChild(label);
+        li.appendChild(delBtn);
+        listEl.appendChild(li);
+      });
+      document.getElementById('blocked-modal').classList.remove('hidden');
+    }
+
+    function hideBlockedList(event) {
+      document.getElementById('blocked-modal').classList.add('hidden');
+    }
+  </script>
 </body>
-
 </html>
