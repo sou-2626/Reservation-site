@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>アカウント設定</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    label,
+    input {
+      display: block;
+      margin: 5px 0;
+    }
+
+    input {
+      padding: 5px;
+      width: 250px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 8px 12px;
+    }
+  </style>
+
+  <!-- 入場ガード：role=admin && loggedIn=true -->
+  <script>
+    (function () {
+      try {
+        const role = sessionStorage.getItem('role');
+        const logged = sessionStorage.getItem('loggedIn');
+        if (role !== 'admin' || logged !== 'true') {
+          location.replace('admin_login.html');
+        }
+      } catch (_) {
+        location.replace('admin_login.html');
+      }
+    })();
+  </script>
+</head>
+
+<body>
+  <h1>アカウント設定</h1>
+
+  <div class="section">
+    <h2>一般ユーザー情報の変更</h2>
+    <label for="user-id">ユーザーID:</label>
+    <input type="text" id="user-id">
+    <label for="user-pass">ユーザーパスワード:</label>
+    <input type="password" id="user-pass">
+    <button id="save-user">保存</button>
+  </div>
+
+  <div class="section">
+    <h2>管理者情報の変更</h2>
+    <label for="admin-id">管理者ID:</label>
+    <input type="text" id="admin-id">
+    <label for="admin-pass">管理者パスワード:</label>
+    <input type="password" id="admin-pass">
+    <button id="save-admin">保存</button>
+  </div>
+
+  <div class="section">
+    <button id="back-btn">管理画面に戻る</button>
+  </div>
+
+  <script type="module" src="js/pages/account_settings.js"></script>
+</body>
+
+</html>

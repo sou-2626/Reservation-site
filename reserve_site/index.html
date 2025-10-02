@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約カレンダー</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+
+    /* 曜日ヘッダ */
+    .calendar-header {
+      font-weight: bold;
+      background-color: #eee;
+    }
+
+    /* カレンダー本体：セルは内容に応じて縦に伸びる */
+    #calendar {
+      grid-auto-rows: minmax(80px, auto);
+    }
+
+    /* 日セル（.date を絶対配置するので上部に余白を確保） */
+    .day {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      padding: 20px 6px 6px 6px;
+      /* ← 上余白で .date と重ならない */
+      font-size: 12px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      min-height: 80px;
+      overflow: visible;
+    }
+
+    .day .date {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      font-weight: bold;
+    }
+
+    /* 予約表示（折り返し可・読みやすく） */
+    .company-name {
+      display: block;
+      width: 100%;
+      margin: 0;
+      line-height: 1.2;
+      font-size: 12px;
+      color: #004080;
+      white-space: normal;
+      word-break: break-word;
+      overflow: visible;
+      text-overflow: clip;
+    }
+
+    .selected {
+      background-color: #88f;
+      color: #fff;
+    }
+
+    .today {
+      border: 2px solid #ff0000;
+      box-sizing: border-box;
+    }
+
+    .reserved {
+      background-color: #aaa;
+      color: #fff;
+      cursor: not-allowed;
+    }
+
+    #reservation-form {
+      display: none;
+      margin-top: 20px;
+    }
+
+    input,
+    select,
+    textarea {
+      margin: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>予約カレンダー</h1>
+
+  <!-- 管理者ログインボタン -->
+  <div style="text-align: right; margin: 10px 20px;">
+    <button type="button" onclick="goToAdminLogin()">管理者ログイン</button>
+  </div>
+
+  <!-- 月の表示と移動ボタン -->
+  <div id="month-control" style="margin: 20px;">
+    <button id="prev-month" type="button">◀</button>
+    <span id="current-month" style="font-weight: bold; margin: 0 10px;"></span>
+    <button id="next-month" type="button">▶</button>
+  </div>
+
+  <!-- 曜日ラベル -->
+  <div class="calendar calendar-header">
+    <div>日</div>
+    <div>月</div>
+    <div>火</div>
+    <div>水</div>
+    <div>木</div>
+    <div>金</div>
+    <div>土</div>
+  </div>
+
+  <!-- カレンダー表示 -->
+  <div id="calendar" class="calendar"></div>
+  <p id="selected-date">日付を選択してください</p>
+
+  <!-- 予約フォーム -->
+  <div id="reservation-form">
+    <form id="form" novalidate>
+      <input type="text" id="company" placeholder="企業名" required><br>
+      <label for="email">メールアドレス:</label>
+      <input type="email" id="email" placeholder="example@example.com" required><br>
+      <label>時間帯:</label>
+      <select id="time" required>
+        <option value="">選択してください</option>
+        <option value="午前">10:00〜12:00（午前）</option>
+        <option value="午後">14:00〜17:00（午後）</option>
+      </select><br>
+      <label>匿名で予約：</label><input type="checkbox" id="anonymous"><br>
+      <label>カテゴリ:</label>
+      <select id="category" required>
+        <option value="">選択してください</option>
+        <option value="ゲーム">ゲーム</option>
+        <option value="CG">CG</option>
+        <option value="両方">両方</option>
+      </select><br>
+      <textarea id="note" rows="3" cols="30" placeholder="備考"></textarea><br>
+      <button type="submit">予約する</button>
+    </form>
+  </div>
+
+  <!-- ログアウトボタン -->
+  <button type="button" onclick="logout()">ログアウト</button>
+  <script>
+    function logout() {
+      sessionStorage.removeItem("loggedIn");
+      location.href = "login.html";
+    }
+    function goToAdminLogin() { location.href = "admin_login.html"; }
+    
+    (function () {
+      try {
+        if (sessionStorage.getItem('loggedIn') !== 'true') {
+          location.replace('login.html');
+        }
+      } catch (_) {
+        location.replace('login.html');
+      }
+    })();
+  </script>
+
+  <!-- 旧: <script src="calendar.js?v=13"></script> を削除 -->
+  <!-- 新: モジュールで読み込み -->
+  <script type="module" src="js/pages/calendar.js"></script>
+</body>
+
+</html>

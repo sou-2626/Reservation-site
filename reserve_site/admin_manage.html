@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約不可日管理カレンダー</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+      position: relative;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .day {
+      position: relative;
+      height: 80px;
+      padding: 5px;
+      font-size: 12px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+
+    .day .date {
+      position: absolute;
+      top: 3px;
+      left: 5px;
+      font-weight: bold;
+    }
+
+    .multi-selected {
+      background-color: #88f !important;
+      color: white;
+    }
+
+    .blocked {
+      background-color: #f99;
+      color: white;
+    }
+
+    .today {
+      border: 2px solid #ff0000;
+    }
+
+    .disabled {
+      background-color: #eee;
+      color: #999;
+      pointer-events: none;
+    }
+
+    .calendar-header {
+      font-weight: bold;
+      background-color: #eee;
+    }
+
+    .top-left-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .modal {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-height: 80vh;
+      overflow-y: auto;
+      width: 80%;
+      max-width: 400px;
+    }
+
+    .modal h3 {
+      margin-top: 0;
+    }
+
+    .modal ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .modal ul li {
+      padding: 5px 0;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <button class="top-left-btn" onclick="window.location.href='admin_dashboard.html'">管理画面に戻る</button>
+
+  <h2>予約不可日管理</h2>
+
+  <div style="margin: 10px;">
+    <button onclick="showBlockedList()">予約不可日一覧を表示</button>
+  </div>
+
+  <div style="margin: 20px;">
+    <button id="prev-month">◀</button>
+    <span id="current-month" style="font-weight:bold; margin: 0 10px;"></span>
+    <button id="next-month">▶</button>
+  </div>
+
+  <div class="calendar calendar-header">
+    <div>日</div>
+    <div>月</div>
+    <div>火</div>
+    <div>水</div>
+    <div>木</div>
+    <div>金</div>
+    <div>土</div>
+  </div>
+  <div id="multi-calendar" class="calendar"></div>
+
+  <div style="margin-top: 20px;">
+    <button onclick="submitSelectedBlockedDates()">選択した日を予約不可にする</button>
+    <button onclick="submitUnblockedDates()">選択した予約不可日を解除する</button>
+  </div>
+
+  <div id="blocked-modal" class="overlay hidden" onclick="hideBlockedList(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <h3>予約不可日一覧</h3>
+      <ul id="blocked-list"></ul>
+      <button onclick="hideBlockedList()">閉じる</button>
+    </div>
+  </div>
+  <script type="module" src="js/pages/admin_manage.js"></script>
+</body>
+
+</html>
