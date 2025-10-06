@@ -59,7 +59,7 @@ async function init() {
   const form = document.getElementById('form');
 
   // 今日
-  const today = new Date(); today.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
   const todayYear = today.getFullYear();
   const todayMonth = today.getMonth();
   const todayDate = today.getDate();
@@ -78,7 +78,7 @@ async function init() {
     calendar.innerHTML = '';
 
     const firstDay = new Date(year, month, 1);
-    const lastDay  = new Date(year, month + 1, 0);
+    const lastDay = new Date(year, month + 1, 0);
     const startDay = firstDay.getDay();
 
     for (let i = 0; i < startDay; i++) calendar.appendChild(document.createElement('div'));
@@ -87,9 +87,9 @@ async function init() {
       const dayEl = document.createElement('div');
       dayEl.className = 'day';
 
-      const dateObj = new Date(year, month, d); dateObj.setHours(0,0,0,0);
+      const dateObj = new Date(year, month, d); dateObj.setHours(0, 0, 0, 0);
       const isoDate = ymdISO(year, month, d);
-      const jpDate  = `${year}年${month + 1}月${d}日`;
+      const jpDate = `${year}年${month + 1}月${d}日`;
 
       const dateLabel = document.createElement('div');
       dateLabel.className = 'date';
@@ -157,14 +157,14 @@ async function init() {
     const list = await listReservations();
     reservations = Array.isArray(list)
       ? list.map(r => ({
-          date: isoToJP(r.date),
-          time: r.time || '',
-          company: r.name || '',
-          anonymous: (r.anonymous === true || r.anonymous === 'はい') ? 'はい'
-                    : (r.anonymous === 'いいえ' ? 'いいえ' : (r.anonymous || 'いいえ')),
-          category: r.category || '',
-          note: r.note || ''
-        }))
+        date: isoToJP(r.date),
+        time: r.time || '',
+        company: r.name || '',
+        anonymous: (r.anonymous === true || r.anonymous === 'はい') ? 'はい'
+          : (r.anonymous === 'いいえ' ? 'いいえ' : (r.anonymous || 'いいえ')),
+        category: r.category || '',
+        note: r.note || ''
+      }))
       : [];
     blockedDates = toISOBlockedArray(await listBlocked());
     renderCalendar(currentYear, currentMonth);
@@ -175,12 +175,12 @@ async function init() {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const company   = document.getElementById('company').value.trim();
-    const time      = document.getElementById('time').value;
+    const company = document.getElementById('company').value.trim();
+    const time = document.getElementById('time').value;
     const anonymous = document.getElementById('anonymous').checked;
-    const category  = document.getElementById('category').value;
-    const note      = document.getElementById('note').value.trim();
-    const email     = document.getElementById('email').value.trim();
+    const category = document.getElementById('category').value;
+    const note = document.getElementById('note').value.trim();
+    const email = document.getElementById('email').value.trim();
 
     if (!company || !time || !category || !selectedDay || !email) {
       alert('企業名・時間・カテゴリ・日付・メールアドレスは必須です');

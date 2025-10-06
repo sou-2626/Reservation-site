@@ -9,47 +9,91 @@
     #msg { font-size: 14px; color: #666; }
 
     table { border-collapse: collapse; width: 100%; margin-top: 12px; table-layout: fixed; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: middle;
-             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+      vertical-align: middle;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     th { background: #eee; }
 
-    .btn { display:inline-block; padding:8px 14px; border-radius:6px;
-           background:#2563eb; color:#fff; text-decoration:none; font-weight:600; border:0; cursor:pointer; }
-    .btn-secondary { background:#6b7280; }
-    .btn-danger    { background:#dc2626; }
-    .cell-actions>button { margin-right: 6px; }
-
-    .col-name { width: auto; }
-    .c-name { max-width: 100%; }
+    .btn {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 6px;
+      background: #2563eb;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      border: 0;
+      cursor: pointer;
+    }
+    .btn-secondary { background: #6b7280; }
+    .btn-danger    { background: #dc2626; }
+    .cell-actions > button { margin-right: 6px; }
 
     .note-indicator { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
     .note-dot { width:10px; height:10px; border-radius:50%; display:inline-block; vertical-align:middle; }
     .note-dot.on  { background:#2563eb; }
     .note-dot.off { background:#c4c4c4; }
 
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, .45);
-                      display: none; align-items: center; justify-content: center; z-index: 1000; }
-    .modal { width: 560px; max-width: calc(100% - 24px);
-             background:#fff; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.2); padding:16px 18px; }
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, .45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal {
+      width: 560px;
+      max-width: calc(100% - 24px);
+      background:#fff;
+      border-radius:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,.2);
+      padding:16px 18px;
+    }
     .modal h2 { margin: 0 0 10px; }
-    .row { display:grid; grid-template-columns:140px 1fr; gap:8px; align-items:center; margin:10px 0; }
+
+    .row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 8px;
+      align-items: center;
+      margin: 10px 0;
+    }
+
     .modal label { color:#444; }
     .modal input[type="date"],
     .modal input[type="text"],
     .modal input[type="email"],
     .modal textarea,
     .modal select {
-      width: 100%; padding: 8px; border: 1px solid #bbb; border-radius: 6px; box-sizing: border-box;
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      box-sizing: border-box;
     }
     .modal textarea { min-height: 90px; resize: vertical; }
-    .modal .actions { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }
+
+    .modal .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
     .hidden { display: none !important; }
-    .radio-row { display:flex; gap:18px; align-items:center; flex-wrap: wrap; }
+
+    .radio-row { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
     .radio-row input[type="text"] { width: 220px; }
-    .readonly { background:#f9fafb; border-color:#e5e7eb; color:#374151; }
+
+    .readonly {
+      background:#f9fafb;
+      border-color:#e5e7eb;
+      color:#374151;
+    }
   </style>
 
-  <!-- 入場ガード -->
+  <!-- ✅ 入場ガード（未ログイン or 非管理者ならログイン画面へ） -->
   <script>
     (function () {
       try {
@@ -58,7 +102,7 @@
         if (role !== 'admin' || logged !== 'true') {
           location.replace('admin_login.html');
         }
-      } catch (_) {
+      } catch {
         location.replace('admin_login.html');
       }
     })();
@@ -71,18 +115,23 @@
 
   <table id="reservation-table">
     <colgroup>
-      <col style="width:120px;"><!-- 日付 -->
-      <col style="width:110px;"><!-- 時間 -->
-      <col class="col-name"><!-- 企業名 -->
-      <col style="width:72px;"><!-- 匿名 -->
-      <col style="width:100px;"><!-- カテゴリ -->
-      <col style="width:110px;"><!-- 備考 -->
-      <col style="width:164px;"><!-- 操作 -->
+      <col style="width:120px;"> <!-- 日付 -->
+      <col style="width:110px;"> <!-- 時間 -->
+      <col>                      <!-- 企業名 -->
+      <col style="width:72px;">  <!-- 匿名 -->
+      <col style="width:100px;"> <!-- カテゴリ -->
+      <col style="width:110px;"> <!-- 備考 -->
+      <col style="width:164px;"> <!-- 操作 -->
     </colgroup>
     <thead>
       <tr>
-        <th>日付</th><th>時間</th><th>企業名</th><th>匿名</th>
-        <th>カテゴリ</th><th>備考</th><th>操作</th>
+        <th>日付</th>
+        <th>時間</th>
+        <th>企業名</th>
+        <th>匿名</th>
+        <th>カテゴリ</th>
+        <th>備考</th>
+        <th>操作</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -92,7 +141,7 @@
     <button type="button" class="btn" onclick="location.href='admin_dashboard.html'">管理画面に戻る</button>
   </div>
 
-  <!-- 確認/編集モーダル -->
+  <!-- ✅ モーダル（予約内容の確認・編集） -->
   <div id="modal-backdrop" class="modal-backdrop" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-title">
       <h2 id="edit-title">予約の確認</h2>
@@ -101,6 +150,7 @@
       <div class="row"><label>匿名</label><div><span id="m-anon" class="readonly"></span></div></div>
       <div class="row"><label for="m-email">メールアドレス</label><input id="m-email" type="email" class="readonly" readonly /></div>
       <div class="row"><label for="m-date">日付</label><input id="m-date" type="date" class="readonly" readonly /></div>
+
       <div class="row">
         <label>時間</label>
         <div class="radio-row">
@@ -110,7 +160,9 @@
           <input id="m-time-custom" type="text" class="hidden readonly" readonly />
         </div>
       </div>
-      <div class="row"><label for="m-cat">カテゴリ</label>
+
+      <div class="row">
+        <label for="m-cat">カテゴリ</label>
         <select id="m-cat" class="readonly" disabled>
           <option value=""></option>
           <option value="CG">CG</option>
@@ -118,6 +170,7 @@
           <option value="両方">両方</option>
         </select>
       </div>
+
       <div class="row"><label for="m-note">備考</label><textarea id="m-note" class="readonly" readonly></textarea></div>
 
       <div class="actions">
@@ -128,7 +181,7 @@
     </div>
   </div>
 
-  <!-- 外部JS -->
+  <!-- ✅ 外部JS -->
   <script type="module" src="js/pages/reservations_list.js"></script>
 </body>
 </html>

@@ -55,26 +55,26 @@
   <h1>アカウント設定</h1>
 
   <div class="section">
-    <h2>一般ユーザー情報の変更</h2>
-    <label for="user-id">ユーザーID:</label>
-    <input type="text" id="user-id">
-    <label for="user-pass">ユーザーパスワード:</label>
-    <input type="password" id="user-pass">
-    <button id="save-user">保存</button>
-  </div>
+  <h2>一般ユーザー情報の変更</h2>
+  <label for="user-id">ユーザーID:</label>
+  <input type="text" id="user-id">
+  <label for="user-pass">ユーザーパスワード:</label>
+  <input type="password" id="user-pass">
+  <button id="save-user" onclick="updateAccount('user')">保存</button>
+</div>
 
-  <div class="section">
-    <h2>管理者情報の変更</h2>
-    <label for="admin-id">管理者ID:</label>
-    <input type="text" id="admin-id">
-    <label for="admin-pass">管理者パスワード:</label>
-    <input type="password" id="admin-pass">
-    <button id="save-admin">保存</button>
-  </div>
+<div class="section">
+  <h2>管理者情報の変更</h2>
+  <label for="admin-id">管理者ID:</label>
+  <input type="text" id="admin-id">
+  <label for="admin-pass">管理者パスワード:</label>
+  <input type="password" id="admin-pass">
+  <button id="save-admin" onclick="updateAccount('admin')">保存</button>
+</div>
 
-  <div class="section">
-    <button id="back-btn">管理画面に戻る</button>
-  </div>
+<div class="section">
+  <button id="back-btn" onclick="goBack()">管理画面に戻る</button>
+</div>
 
   <script type="module" src="js/pages/account_settings.js"></script>
 </body>

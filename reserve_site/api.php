@@ -226,8 +226,10 @@ switch ($action) {
     }
 
   case 'ping': {
-    jsok(['ok'=>true,'name'=>'auth.php']);
-  }
+      ok(['ok' => true]);
+    }
+    break;
+
 
 
   case 'create': {
