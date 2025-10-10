@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>メールアドレス管理</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    h1 { text-align: center; }
+    label { display: block; margin-top: 10px; }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 10px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th { background: #eee; }
+    #status { color: green; margin-top: 10px; }
+  </style>
+
+  <script>
+    // 管理者ログインチェック
+    (function() {
+      const role = sessionStorage.getItem('role');
+      const logged = sessionStorage.getItem('loggedIn');
+      if (role !== 'admin' || logged !== 'true') {
+        location.replace('admin_login.html');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <h1>メールアドレス登録管理</h1>
+
+  <label for="name">名前：</label>
+  <input type="text" id="name" placeholder="例：田中太郎">
+
+  <label for="email">メールアドレス：</label>
+  <input type="email" id="email" placeholder="例：staff@example.com">
+
+  <button id="add-btn">登録</button>
+  <p id="status"></p>
+
+  <h2>登録一覧</h2>
+  <table id="staff-table">
+    <thead>
+      <tr><th>名前</th><th>メールアドレス</th><th>操作</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button onclick="location.href='admin_dashboard.html'">管理画面に戻る</button>
+
+  <script type="module" src="js/pages/admin_mail.js"></script>
+</body>
+</html>
