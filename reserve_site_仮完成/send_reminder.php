@@ -178,7 +178,7 @@ if ($staff_summary !== '' && !empty($staff_addresses)) {
 
 ------------------------------------
 Flat Amami 予約サイト 管理用
-{$site_url}/admin.html
+{$site_url}/admin_login.html
 ------------------------------------
 ※このメールは自動送信されています。
 EOT;

@@ -259,7 +259,7 @@ EOT;
 備考：{$note}
 
 管理画面：
-https://flat-amami-7790.fool.jp/reserve_site/admin.html
+https://flat-amami-7790.fool.jp/reserve_site/admin_login.html
 
 ※このメールは自動送信されています。
 EOT;
