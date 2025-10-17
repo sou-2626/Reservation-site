@@ -1,127 +1,98 @@
 <?php
-// auth.php
-header('Content-Type: application/json; charset=utf-8');
-mb_internal_encoding('UTF-8');
-error_reporting(E_ALL);
-ini_set('display_errors', '0');
+// auth.php - SQLite対応（相対パス・初期化付き）
+header('Content-Type: application/json');
+date_default_timezone_set('Asia/Tokyo');
 
-$AUTH_FILE = __DIR__ . '/data/auth.json';
+try {
+    // reserve_site/data/reservation_system.db に統一
+    $pdo = new PDO('sqlite:' . __DIR__ . '/data/reservation_system.db');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-function jserr_soft($msg)
-{
-  echo json_encode(['ok' => false, 'error' => $msg], JSON_UNESCAPED_UNICODE);
-  exit;
-}
-function jserr($msg, $code = 400)
-{
-  http_response_code($code);
-  echo json_encode(['ok' => false, 'error' => $msg], JSON_UNESCAPED_UNICODE);
-  exit;
-}
-function jsok($data = null)
-{
-  echo json_encode($data ?? ['ok' => true], JSON_UNESCAPED_UNICODE);
-  exit;
-}
+    // 初期化（存在しなければ作成）
+    $pdo->exec("
+    CREATE TABLE IF NOT EXISTS accounts (
+        role TEXT PRIMARY KEY,
+        id TEXT NOT NULL,
+        password TEXT NOT NULL
+    );
+    ");
 
-function ensure_auth_file($file)
-{
-  if (!is_dir(dirname($file))) @mkdir(dirname($file), 0775, true);
-  if (!file_exists($file)) {
-    $init = [
-      'admin' => ['id' => 'admin', 'password' => 'admin123'],
-      'user'  => ['id' => 'user',  'password' => 'user123']
-    ];
-    file_put_contents($file, json_encode($init, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-  }
-}
+    // 初期レコードを1回だけ投入
+    if ((int)$pdo->query("SELECT COUNT(*) FROM accounts")->fetchColumn() === 0) {
+        $pdo->exec("
+            INSERT INTO accounts (role, id, password)
+            VALUES ('admin','admin','adminpass'),
+                   ('user','user','userpass');
+        ");
+    }
 
-function read_auth($file)
-{
-  ensure_auth_file($file);
-  $data = json_decode(@file_get_contents($file), true);
-  if (!is_array($data)) $data = [];
-  foreach (['admin', 'user'] as $r) {
-    if (!isset($data[$r])) $data[$r] = ['id' => $r, 'password' => $r . '123'];
-  }
-  return $data;
-}
-
-function write_auth($file, $data)
-{
-  file_put_contents($file, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+} catch (PDOException $e) {
+    echo json_encode(['error' => 'DB接続エラー: ' . $e->getMessage()]);
+    exit;
 }
 
 $action = $_GET['action'] ?? '';
-$payload = json_decode(file_get_contents('php://input'), true);
 
 switch ($action) {
+    // 管理画面・ログイン前のID確認
+    case 'get_ids':
+        $res = $pdo->query("SELECT role, id FROM accounts");
+        $out = ['admin' => [], 'user' => []];
+        foreach ($res as $row) {
+            $out[$row['role']] = ['id' => $row['id']];
+        }
+        echo json_encode($out);
+        break;
 
-  case 'ping': {
-      echo json_encode(['ok' => true, 'name' => 'auth.php'], JSON_UNESCAPED_UNICODE);
-      exit;
-    }
-  case 'login': {
-      if (!is_array($payload)) jserr('JSONの形式が不正です');
-      $role = trim($payload['role'] ?? '');
-      $pw   = (string)($payload['password'] ?? '');
-      if ($role === '' || $pw === '') jserr_soft('role と password は必須です');
+    // ログイン認証
+    case 'login':
+        $input = json_decode(file_get_contents('php://input'), true);
+        $role = $input['role'] ?? '';
+        $pass = $input['password'] ?? '';
+        $stmt = $pdo->prepare("SELECT password FROM accounts WHERE role = ?");
+        $stmt->execute([$role]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row && $pass === $row['password']) {
+            echo json_encode(['ok' => true]);
+        } else {
+            echo json_encode(['ok' => false, 'error' => 'IDまたはパスワードが正しくありません']);
+        }
+        break;
 
-      $auth = read_auth($AUTH_FILE);
-      if (!isset($auth[$role])) jserr_soft('指定のロールが存在しません');
-      if (($auth[$role]['password'] ?? '') !== $pw) {
-        // ← ここを「通信エラーではなくJSONレスポンス」に変更
-        jserr_soft('ユーザーIDまたはパスワードが違います');
-      }
+    // アカウント情報更新（IDまたはパスワード）
+    case 'update_account':
+        $input = json_decode(file_get_contents('php://input'), true);
+        $role = $input['role'] ?? '';
+        $id = $input['id'] ?? null;
+        $pass = $input['password'] ?? null;
+        if (!$role) {
+            echo json_encode(['ok' => false, 'error' => 'ロールが指定されていません']);
+            break;
+        }
 
-      jsok(['ok' => true]);
-      break;
-    }
+        $fields = [];
+        $params = [];
+        if ($id) {
+            $fields[] = "id = ?";
+            $params[] = $id;
+        }
+        if ($pass) {
+            $fields[] = "password = ?";
+            $params[] = $pass;
+        }
+        if (empty($fields)) {
+            echo json_encode(['ok' => false, 'error' => '更新項目がありません']);
+            break;
+        }
 
-  case 'get_ids': {
-      $auth = read_auth($AUTH_FILE);
-      jsok([
-        'admin' => ['id' => $auth['admin']['id'] ?? 'admin'],
-        'user'  => ['id' => $auth['user']['id'] ?? 'user']
-      ]);
-      break;
-    }
+        $params[] = $role;
+        $sql = "UPDATE accounts SET " . implode(", ", $fields) . " WHERE role = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        echo json_encode(['ok' => true]);
+        break;
 
-  case 'change_password': {
-      if (!is_array($payload)) jserr('JSONの形式が不正です');
-      $role = trim($payload['role'] ?? '');
-      $new  = (string)($payload['new_password'] ?? '');
-      if ($role === '' || $new === '') jserr_soft('role / new_password は必須です');
-
-      $auth = read_auth($AUTH_FILE);
-      if (!isset($auth[$role])) jserr_soft('指定のロールが存在しません');
-
-      $auth[$role]['password'] = $new;
-      write_auth($AUTH_FILE, $auth);
-      jsok();
-      break;
-    }
-
-  case 'update_account': {
-      if (!is_array($payload)) jserr('JSONの形式が不正です');
-      $role = trim($payload['role'] ?? '');
-      if ($role === '') jserr_soft('role は必須です');
-
-      $auth = read_auth($AUTH_FILE);
-      if (!isset($auth[$role])) jserr_soft('指定のロールが存在しません');
-
-      if (isset($payload['id']))       $auth[$role]['id'] = (string)$payload['id'];
-      if (isset($payload['password'])) $auth[$role]['password'] = (string)$payload['password'];
-
-      write_auth($AUTH_FILE, $auth);
-      jsok();
-      break;
-    }
-
-  case 'ping':
-    jsok(['ok' => true, 'name' => 'auth.php']);
-    break;
-
-  default:
-    jserr_soft('未知のactionです');
+    default:
+        echo json_encode(['error' => '未対応のアクションです']);
 }
+?>
