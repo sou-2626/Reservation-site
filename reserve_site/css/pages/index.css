@@ -1,0 +1,31 @@
+
+/* 上部ナビゲーションやボタン配置 */
+#month-control {
+  margin: 20px;
+}
+#month-control button {
+  padding: 6px 12px;
+}
+
+/* 管理者ログインボタン */
+.header-actions {
+  text-align: right;
+  margin: 10px 20px;
+}
+
+/* 予約フォーム */
+#reservation-form {
+  display: none;
+  margin-top: 20px;
+}
+#reservation-form input,
+#reservation-form select,
+#reservation-form textarea {
+  margin: 5px;
+}
+
+/* 選択した日付の表示 */
+#selected-date {
+  font-weight: bold;
+  margin-top: 12px;
+}

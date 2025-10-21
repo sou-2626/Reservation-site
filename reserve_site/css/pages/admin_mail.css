@@ -1,0 +1,73 @@
+
+/* ページレイアウト */
+body {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ページタイトル */
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* 入力フォーム */
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+input[type="text"],
+input[type="email"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+}
+
+/* 登録ボタン */
+#add-btn {
+  margin-top: 10px;
+  padding: 8px 16px;
+}
+
+/* 登録完了メッセージ */
+#status {
+  color: green;
+  margin-top: 10px;
+  min-height: 1.2em;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* テーブル調整 */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 15px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background: #f2f2f2;
+  font-weight: 700;
+}
+
+/* 戻るボタンを中央寄せに */
+button[onclick] {
+  display: block;
+  margin: 30px auto 0;
+  background: #fff;
+  color: #111;
+  border: 1px solid #ccc;
+}
+button[onclick]:hover {
+  background: #f5f5f5;
+}

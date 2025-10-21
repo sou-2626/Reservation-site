@@ -1,0 +1,33 @@
+
+body {
+  text-align: center;
+  margin-top: 50px;
+}
+
+/* タイトル */
+h1 {
+  margin-bottom: 20px;
+}
+
+/* メニューボタン */
+button {
+  display: block;
+  width: 240px;
+  margin: 16px auto;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 0;
+  background: var(--primary);
+  color: var(--primary-contrast);
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter .15s ease, transform .02s ease;
+}
+
+button:hover {
+  filter: brightness(1.05);
+}
+
+button:active {
+  transform: translateY(1px);
+}

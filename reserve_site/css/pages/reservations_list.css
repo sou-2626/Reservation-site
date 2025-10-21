@@ -1,0 +1,72 @@
+
+/* ページ全体 */
+#msg {
+  font-size: 14px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* 操作ボタン類 */
+.cell-actions > button { margin-right: 6px; }
+
+/* 備考アイコン的なインジケータ */
+.note-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+/* モーダル詳細構造 */
+.row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.modal label { color: #444; }
+
+.modal input[type="text"],
+.modal input[type="email"],
+.modal input[type="date"],
+.modal select,
+.modal textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  box-sizing: border-box;
+}
+
+.modal textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+/* モーダル内のアクションボタン */
+.modal .actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+/* 特定状態（読み取り専用など） */
+.readonly {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+  color: #374151;
+}
+
+/* 時間帯選択の横並び */
+.radio-row {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.radio-row input[type="text"] {
+  width: 220px;
+}

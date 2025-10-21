@@ -2,43 +2,15 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <link rel="stylesheet" href="css/common.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>メールアドレス管理</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      max-width: 700px;
-      margin: 0 auto;
-    }
-    h1 { text-align: center; }
-    label { display: block; margin-top: 10px; }
-    input {
-      width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-      box-sizing: border-box;
-    }
-    button {
-      margin-top: 10px;
-      padding: 8px 16px;
-      cursor: pointer;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-    }
-    th { background: #eee; }
-    #status { color: green; margin-top: 10px; }
-  </style>
 
+  <!-- 外部CSS -->
+  <link rel="stylesheet" href="css/pages/admin_mail.css">
+
+  <!-- 管理者ログインチェック -->
   <script>
-    // 管理者ログインチェック
     (function() {
       const role = sessionStorage.getItem('role');
       const logged = sessionStorage.getItem('loggedIn');
@@ -48,6 +20,7 @@
     })();
   </script>
 </head>
+
 <body>
   <h1>メールアドレス登録管理</h1>
 

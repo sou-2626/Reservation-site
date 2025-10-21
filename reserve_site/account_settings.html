@@ -3,53 +3,24 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>アカウント設定</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-    }
-
-    .section {
-      margin-top: 30px;
-    }
-
-    label,
-    input {
-      display: block;
-      margin: 5px 0;
-    }
-
-    input {
-      padding: 5px;
-      width: 250px;
-    }
-
-    button {
-      margin-top: 10px;
-      padding: 8px 12px;
-    }
-  </style>
-
-  <!-- 入場ガード：role=admin && loggedIn=true -->
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/pages/account_settings.css">
   <script>
+    // 入場ガード（そのまま残す）
     (function () {
       try {
         const role = sessionStorage.getItem('role');
         const logged = sessionStorage.getItem('loggedIn');
-        if (role !== 'admin' || logged !== 'true') {
-          location.replace('admin_login.html');
-        }
+        if (role !== 'admin' || logged !== 'true') location.replace('admin_login.html');
       } catch (_) {
         location.replace('admin_login.html');
       }
     })();
   </script>
 </head>
+
 
 <body>
   <h1>アカウント設定</h1>

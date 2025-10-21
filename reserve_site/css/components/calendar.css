@@ -1,0 +1,56 @@
+
+/* カレンダー本体 */
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin: 20px auto;
+  max-width: 700px;
+}
+
+/* 曜日ヘッダ */
+.calendar-header {
+  font-weight: bold;
+  background-color: #eee;
+}
+
+/* 各日セル */
+.day {
+  position: relative;
+  border: 1px solid #ccc;
+  font-size: 12px;
+  min-height: 80px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+/* 日付の数字 */
+.day .date {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-weight: bold;
+}
+
+/* 選択された日・今日・予約済み */
+.selected {
+  background-color: #88f;
+  color: #fff;
+}
+.today {
+  border: 2px solid #ff0000;
+}
+.reserved {
+  background-color: #aaa;
+  color: #fff;
+  cursor: not-allowed;
+}
+.blocked {
+  background-color: #f99;
+  color: #fff;
+}
+
+/* カレンダーが複数行になる場合でもバランス維持 */
+#calendar, #multi-calendar {
+  grid-auto-rows: minmax(80px, auto);
+}
