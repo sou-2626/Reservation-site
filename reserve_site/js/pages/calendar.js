@@ -54,8 +54,8 @@ async function init() {
   const monthLabel = document.getElementById('current-month');
   const prevBtn = document.getElementById('prev-month');
   const nextBtn = document.getElementById('next-month');
-  const selectedDateDisplay = document.getElementById('selected-date');
-  const reservationForm = document.getElementById('reservation-form');
+  const selectedDateDisplay = document.querySelector('.selected-date');
+  const reservationForm = document.querySelector('.reservation-form');
   const form = document.getElementById('form');
 
   // 今日

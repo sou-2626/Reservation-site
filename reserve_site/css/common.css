@@ -5,7 +5,9 @@
 ====================================== */
 
 /* --- リセット・共通変数 --- */
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 :root {
   --fg: #111;
@@ -18,7 +20,8 @@
 }
 
 /* --- ベース --- */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
@@ -31,6 +34,7 @@ h1 {
   text-align: center;
   margin: 0 0 12px;
 }
+
 h2 {
   margin: 0 0 8px;
   font-size: 18px;
@@ -38,12 +42,14 @@ h2 {
 
 /* --- セクション共通 --- */
 .section {
-  margin-top: 30px;
+  margin-top: 40px;
   max-width: 600px;
   margin-inline: auto;
-  padding: 16px 0;
-  border-top: 1px solid #eee;
+  padding: 0;
+  border-top: none;
+  background: transparent;
 }
+
 .section:first-of-type {
   border-top: 0;
   padding-top: 0;
@@ -58,7 +64,9 @@ label {
   font-size: 14px;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   font: inherit;
   width: 100%;
   padding: 8px;
@@ -68,7 +76,9 @@ input, select, textarea {
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   border-color: var(--primary);
   outline: none;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
@@ -79,7 +89,8 @@ textarea {
 }
 
 /* --- ボタン --- */
-button, .btn {
+button,
+.btn {
   display: inline-block;
   padding: 8px 14px;
   border-radius: 6px;
@@ -91,13 +102,18 @@ button, .btn {
   transition: filter .15s ease, transform .02s ease;
 }
 
-button:hover, .btn:hover {
+button:hover,
+.btn:hover {
   filter: brightness(1.05);
 }
-button:active, .btn:active {
+
+button:active,
+.btn:active {
   transform: translateY(1px);
 }
-button[disabled], .btn[disabled] {
+
+button[disabled],
+.btn[disabled] {
   opacity: .6;
   cursor: not-allowed;
 }
@@ -106,6 +122,7 @@ button[disabled], .btn[disabled] {
 .btn-secondary {
   background: #6b7280;
 }
+
 .btn-danger {
   background: #dc2626;
 }
@@ -117,6 +134,7 @@ button[onclick] {
   color: var(--fg);
   border: 1px solid var(--border);
 }
+
 #back-btn:hover,
 button[onclick]:hover {
   background: #f5f5f5;
@@ -129,7 +147,9 @@ table {
   table-layout: fixed;
   margin-top: 16px;
 }
-th, td {
+
+th,
+td {
   border: 1px solid var(--border);
   padding: 8px;
   text-align: left;
@@ -138,6 +158,7 @@ th, td {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 th {
   background: #f2f2f2;
   font-weight: 700;
@@ -158,21 +179,38 @@ th {
 .modal {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   padding: 16px 18px;
   max-width: calc(100% - 24px);
 }
 
-.modal h2, .modal h3 {
+.modal h2,
+.modal h3 {
   margin-top: 0;
 }
 
 /* --- 汎用ユーティリティ --- */
-.hidden { display: none !important; }
-.text-center { text-align: center; }
-.container { max-width: 960px; margin: 0 auto; padding: 0 16px; }
-.mt-10 { margin-top: 10px; }
-.mt-20 { margin-top: 20px; }
+.hidden {
+  display: none !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.mt-10 {
+  margin-top: 10px;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
 
 /* --- カラーインジケータなど --- */
 .note-dot {
@@ -182,5 +220,11 @@ th {
   display: inline-block;
   vertical-align: middle;
 }
-.note-dot.on { background: var(--primary); }
-.note-dot.off { background: #c4c4c4; }
+
+.note-dot.on {
+  background: var(--primary);
+}
+
+.note-dot.off {
+  background: #c4c4c4;
+}

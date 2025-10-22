@@ -1,3 +1,7 @@
+/* ===============================
+   calendar.css（統合修正版）
+   土日・選択・当日を視覚的に統一
+=============================== */
 
 /* カレンダー本体 */
 .calendar {
@@ -22,9 +26,12 @@
   min-height: 80px;
   box-sizing: border-box;
   cursor: pointer;
+  background-color: #fff;
+  transition: all 0.15s ease;
+  padding: 18px 6px 6px 6px; /* 上に余白を追加（日付数字のため） */
 }
 
-/* 日付の数字 */
+/* 日付数字 */
 .day .date {
   position: absolute;
   top: 4px;
@@ -32,25 +39,83 @@
   font-weight: bold;
 }
 
-/* 選択された日・今日・予約済み */
-.selected {
-  background-color: #88f;
-  color: #fff;
-}
+/* ===============================
+   状態別スタイル
+=============================== */
+
+/* 今日（赤枠＋薄グレー） */
 .today {
-  border: 2px solid #ff0000;
+  border: 2px solid #fa1515;
+  background-color: #f9f9f9;
 }
-.reserved {
-  background-color: #aaa;
-  color: #fff;
-  cursor: not-allowed;
+
+/* 今日が予約不可の日（赤枠＋やや濃い灰色） */
+.day.today.reserved {
+  border: 2px solid #fa1515;
+  background-color: #e5e7eb;
+  color: #999;
 }
+
+/* 管理者が設定した予約不可日（赤背景） */
 .blocked {
-  background-color: #f99;
+  background-color: #ef4444 !important;
   color: #fff;
 }
 
-/* カレンダーが複数行になる場合でもバランス維持 */
-#calendar, #multi-calendar {
+/* 選択中の日（クリック済み） */
+.day.selected {
+  background-color: #dbeafe;
+  border: 2px solid #2563eb;
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.4);
+  transform: scale(1.03);
+}
+
+/* 選択状態のホバーを維持（色が消えないように） */
+.day.selected:hover {
+  background-color: #dbeafe;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 複数選択（管理画面側のもの） */
+.multi-selected {
+  background-color: #2563eb !important;
+  color: #fff;
+  border: 2px solid #1d4ed8;
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.4);
+  transform: scale(1.05);
+}
+
+/* 予約不可日（週末など） */
+.day.reserved {
+  background-color: #e5e7eb;
+  color: #999;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: .9;
+}
+
+/* hover */
+.day:hover {
+  background-color: #e0e7ff;
+}
+.day.reserved:hover {
+  background-color: #e5e7eb;
+  transform: none;
+  box-shadow: none;
+}
+
+/* グリッド安定化 */
+#calendar,
+#multi-calendar {
   grid-auto-rows: minmax(80px, auto);
+}
+
+/* 会社名の表示を少し整える */
+.company-name {
+  display: block;
+  line-height: 1.2;
+  margin-top: 2px; /* 日付の下から少し離す */
+  white-space: normal;
+  word-break: break-word;
 }

@@ -1,31 +1,128 @@
+/* ===============================
+   index.css（予約カレンダー用）
+   上部見切れ修正版（transform:5px は維持）
+=============================== */
 
-/* 上部ナビゲーションやボタン配置 */
-#month-control {
-  margin: 20px;
-}
-#month-control button {
-  padding: 6px 12px;
-}
-
-/* 管理者ログインボタン */
-.header-actions {
-  text-align: right;
-  margin: 10px 20px;
+/* ページ全体の中央寄せ */
+.page {
+  max-width: 840px;
+  margin: 40px auto;
+  text-align: center;
+  padding: 0 16px;
 }
 
-/* 予約フォーム */
-#reservation-form {
-  display: none;
-  margin-top: 20px;
-}
-#reservation-form input,
-#reservation-form select,
-#reservation-form textarea {
-  margin: 5px;
+/* 月切り替えボタンの配置 */
+.month-control {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0;
 }
 
-/* 選択した日付の表示 */
-#selected-date {
+.month-label {
   font-weight: bold;
-  margin-top: 12px;
+  font-size: 16px;
+}
+
+/* 右上の管理者ログイン */
+.top-right-btn {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+/* フッター */
+.page-footer {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0 32px;
+}
+
+/* ===============================
+   フォーム関連（クラス化＆調整）
+=============================== */
+
+/* 「○○年○月○日を選択しました」テキスト */
+.selected-date {
+  text-align: center;
+  margin: 0 0 14px; /* ← 上を28pxにして見切れ解消 */
+  font-weight: 600;
+  color: #333;
+  line-height: 1.5;
+}
+
+/* フォームを最初は非表示にする */
+.reservation-form {
+  display: none;
+  margin: 24px auto;
+  max-width: 420px;
+  background: #fafafa;
+  padding: 24px 20px 20px; /* ← 上だけ2px拡大 */
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+/* 入力欄を整える */
+.reservation-form input,
+.reservation-form select,
+.reservation-form textarea {
+  width: 100%;
+  padding: 8px;
+  margin: 6px 0 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* テキストエリアだけ縦方向リサイズ許可 */
+.reservation-form textarea {
+  resize: vertical;
+}
+
+/* ラベルの基本設定 */
+.reservation-form label {
+  display: block;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+/* 匿名チェックボックス行（横並び＋調整済） */
+.anonymous-row {
+  display: flex;
+  align-items: center;   /* 縦センター */
+  gap: 8px;
+  margin: 8px 0 12px;    /* 前後に少し余白を追加 */
+}
+
+.anonymous-row label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* チェックボックス位置（固定：translateY(5px)） */
+.anonymous-row input[type="checkbox"] {
+  width: auto !important;
+  transform: translateY(5px) scale(1.2);  /* ← 絶対変更しない */
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+
+/* 予約ボタン */
+.reservation-form button[type="submit"] {
+  display: block;
+  width: 100%;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.reservation-form button[type="submit"]:hover {
+  background: #1d4ed8;
 }
