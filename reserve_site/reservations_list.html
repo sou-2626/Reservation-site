@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>予約一覧</title>
-  <link rel="stylesheet" href="css/reservations_list.css">
+  <link rel="stylesheet" href="css/pages/reservations_list.css">
   <link rel="stylesheet" href="css/common.css">
   <!-- ✅ 入場ガード（未ログイン or 非管理者ならログイン画面へ） -->
   <script>
@@ -24,6 +24,16 @@
 
 <body>
   <h1>現在の予約一覧</h1>
+  <!-- ▼ ソート機能 -->
+  <div class="sort-controls" style="margin:10px 0;">
+    <label>並び替え：</label>
+    <select id="sort-select">
+      <option value="date-asc">日付 昇順（古い→新しい）</option>
+      <option value="date-desc">日付 降順（新しい→古い）</option>
+      <option value="cat-custom">カテゴリ（ゲーム→CG→両方）</option>
+    </select>
+  </div>
+
   <div id="msg">読み込み中…</div>
 
   <table id="reservation-table">

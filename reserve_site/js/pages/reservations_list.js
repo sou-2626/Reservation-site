@@ -20,17 +20,17 @@ const hasNote = (v) => (v ?? '').toString().trim().length > 0;
 let currentEditingId = null;
 
 // --- DOM refs (modal) ---
-const $backdrop   = $('#modal-backdrop');
-const $mName      = $('#m-name');
-const $mAnon      = $('#m-anon');
-const $mEmail     = $('#m-email');
-const $mDate      = $('#m-date');
-const $mCat       = $('#m-cat');
-const $mNote      = $('#m-note');
+const $backdrop = $('#modal-backdrop');
+const $mName = $('#m-name');
+const $mAnon = $('#m-anon');
+const $mEmail = $('#m-email');
+const $mDate = $('#m-date');
+const $mCat = $('#m-cat');
+const $mNote = $('#m-note');
 const $timeCustom = $('#m-time-custom');
-const $btnEdit    = $('#m-edit');
-const $btnSave    = $('#m-save');
-const $btnCancel  = $('#m-cancel');
+const $btnEdit = $('#m-edit');
+const $btnSave = $('#m-save');
+const $btnCancel = $('#m-cancel');
 
 // --- Init ---
 document.addEventListener('DOMContentLoaded', init);
@@ -70,6 +70,66 @@ async function init() {
       else { $timeCustom.classList.add('hidden'); $timeCustom.value = ''; $timeCustom.setAttribute('readonly', 'readonly'); }
     });
   });
+
+  // ★追加: ソートセレクト変更で再描画
+  $('#sort-select')?.addEventListener('change', (e) => {
+    sortAndRender(e.target.value);
+  });
+}
+
+// グローバル状態を保持
+let reservationList = [];
+let currentSortMode = 'date-asc'; // 現在のソート状態を保持
+
+// カテゴリ順序マップ（独自ルール）
+const CAT_ORDER = { 'ゲーム': 0, 'CG': 1, '両方': 2 };
+const catWeight = (v) => {
+  const key = (v ?? '').toString().trim();
+  return (key in CAT_ORDER) ? CAT_ORDER[key] : 99; // 未設定は最後に回す
+};
+
+// 共通：並び替えして再描画
+function sortAndRender(mode) {
+  currentSortMode = mode;
+  const tbody = $('#reservation-table tbody');
+  tbody.innerHTML = '';
+
+  const rows = [...reservationList];
+
+  switch (mode) {
+    case 'date-asc':
+      rows.sort((a, b) => `${a.date || ''}-${a.time || ''}`.localeCompare(`${b.date || ''}-${b.time || ''}`));
+      break;
+    case 'date-desc':
+      rows.sort((a, b) => `${b.date || ''}-${b.time || ''}`.localeCompare(`${a.date || ''}-${a.time || ''}`));
+      break;
+    case 'cat-custom':
+      rows.sort((a, b) => {
+        const aw = catWeight(a.category);
+        const bw = catWeight(b.category);
+        if (aw !== bw) return aw - bw;
+        // 同カテゴリ内は日付→時間の昇順で安定化
+        const ad = `${a.date || ''}-${a.time || ''}`;
+        const bd = `${b.date || ''}-${b.time || ''}`;
+        return ad.localeCompare(bd);
+      });
+      break;
+  }
+
+  // 再描画
+  for (const r of rows) {
+    appendRow({
+      id: r.id ?? '',
+      date: r.date ?? '',
+      time: r.time ?? '',
+      name: r.name ?? '',
+      contact: r.contact ?? '',
+      anonymous: r.anonymous === true || r.anonymous === 'はい' ? 'はい'
+        : (r.anonymous === 'いいえ' ? 'いいえ' : (r.anonymous ?? 'いいえ')),
+      category: r.category ?? '',
+      note: r.note ?? ''
+    });
+  }
 }
 
 // --- Load & render ---
@@ -81,23 +141,18 @@ async function loadList() {
 
   try {
     const list = await listReservations(); // [{id,date,time,name,contact,anonymous,category,note,...}]
-    const rows = Array.isArray(list) ? list.slice() : [];
-    rows.sort((a, b) => `${a.date || ''}-${a.time || ''}`.localeCompare(`${b.date || ''}-${b.time || ''}`));
+    reservationList = Array.isArray(list) ? list.slice() : [];
 
-    if (!rows.length) { msg.textContent = '予約はありません'; return; }
+    if (!reservationList.length) {
+      msg.textContent = '予約はありません';
+      return;
+    }
+
     msg.textContent = '';
-
-    for (const r of rows) appendRow({
-      id: r.id ?? '',
-      date: r.date ?? '',
-      time: r.time ?? '',
-      name: r.name ?? '',
-      contact: r.contact ?? '',
-      anonymous: r.anonymous === true || r.anonymous === 'はい' ? 'はい'
-               : (r.anonymous === 'いいえ' ? 'いいえ' : (r.anonymous ?? 'いいえ')),
-      category: r.category ?? '',
-      note: r.note ?? ''
-    });
+    // 現在選択されているソート方法で描画
+    const sel = $('#sort-select');
+    currentSortMode = sel ? sel.value : 'date-asc';
+    sortAndRender(currentSortMode);
   } catch (e) {
     console.error(e);
     msg.textContent = '読み取りが失敗しました（通信エラー）';
@@ -107,10 +162,10 @@ async function loadList() {
 function appendRow(row) {
   const tbody = $('#reservation-table tbody');
   const tr = document.createElement('tr');
-  tr.dataset.id    = row.id;
-  tr.dataset.note  = row.note;
-  tr.dataset.cat   = row.category;
-  tr.dataset.time  = row.time;
+  tr.dataset.id = row.id;
+  tr.dataset.note = row.note;
+  tr.dataset.cat = row.category;
+  tr.dataset.time = row.time;
   tr.dataset.email = row.contact;
 
   const noteExists = hasNote(row.note);
@@ -146,6 +201,8 @@ async function onDelete(tr) {
     const r = await deleteReservation(id);
     if (r && r.ok === true) {
       tr.remove();
+      // ★追加: メモリ上の配列からも削除し、並び順維持して再描画
+      reservationList = reservationList.filter(x => Number(x.id) !== Number(id));
       if (!$('#reservation-table tbody tr')) $('#msg').textContent = '予約はありません';
     } else {
       alert('削除失敗: ' + (r?.error || '不明なエラー'));
@@ -160,9 +217,9 @@ async function onDelete(tr) {
 function setReadonlyMode(readonly) {
   if (!$mEmail) return;
   $mEmail.readOnly = readonly; $mEmail.classList.toggle('readonly', readonly);
-  $mDate.readOnly  = readonly; $mDate.disabled = readonly; $mDate.classList.toggle('readonly', readonly);
-  $mCat.disabled   = readonly; $mCat.classList.toggle('readonly', readonly);
-  $mNote.readOnly  = readonly; $mNote.classList.toggle('readonly', readonly);
+  $mDate.readOnly = readonly; $mDate.disabled = readonly; $mDate.classList.toggle('readonly', readonly);
+  $mCat.disabled = readonly; $mCat.classList.toggle('readonly', readonly);
+  $mNote.readOnly = readonly; $mNote.classList.toggle('readonly', readonly);
   $$('input[name="m-time"]').forEach(r => r.disabled = readonly);
   if (readonly) $timeCustom.setAttribute('readonly', 'readonly'); else $timeCustom.removeAttribute('readonly');
 
@@ -173,13 +230,13 @@ function setReadonlyMode(readonly) {
 function openModal(tr) {
   currentEditingId = Number(tr.dataset.id);
 
-  const iso  = tr.querySelector('.c-date').getAttribute('data-iso') || '';
+  const iso = tr.querySelector('.c-date').getAttribute('data-iso') || '';
   const time = (tr.dataset.time || tr.querySelector('.c-time').textContent || '').trim();
   const name = tr.querySelector('.c-name').textContent.trim();
   const anon = tr.querySelector('.c-anon').textContent.trim();
-  const cat  = (tr.dataset.cat || tr.querySelector('.c-cat').textContent || '').trim();
+  const cat = (tr.dataset.cat || tr.querySelector('.c-cat').textContent || '').trim();
   const note = (tr.dataset.note || '').toString();
-  const email= (tr.dataset.email || '').toString();
+  const email = (tr.dataset.email || '').toString();
 
   $mName.textContent = name || '(未入力)';
   $mAnon.textContent = anon || 'いいえ';
@@ -222,9 +279,9 @@ async function onSave() {
   if (!id) { alert('内部IDが取得できませんでした'); return; }
 
   const email = $mEmail.value.trim();
-  const date  = $mDate.value;
-  const cat   = $mCat.value;
-  const note  = $mNote.value.trim();
+  const date = $mDate.value;
+  const cat = $mCat.value;
+  const note = $mNote.value.trim();
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { alert('日付はYYYY-MM-DDで指定してください'); return; }
 
@@ -252,10 +309,10 @@ async function onSave() {
       tr.querySelector('.c-date').setAttribute('data-iso', date);
       tr.querySelector('.c-date').textContent = isoToSlash(date);
       tr.querySelector('.c-time').textContent = time;
-      tr.querySelector('.c-cat').textContent  = cat;
-      tr.dataset.note  = note;
-      tr.dataset.time  = time;
-      tr.dataset.cat   = cat;
+      tr.querySelector('.c-cat').textContent = cat;
+      tr.dataset.note = note;
+      tr.dataset.time = time;
+      tr.dataset.cat = cat;
       tr.dataset.email = email;
 
       const noteExists = hasNote(note);
@@ -267,6 +324,16 @@ async function onSave() {
           <span>${noteExists ? '備考あり' : '備考なし'}</span>
         </span>`;
     }
+
+    // ★追加: メモリ上の配列も更新して、現在のソート順で再描画
+    const idx = reservationList.findIndex(x => Number(x.id) === Number(id));
+    if (idx >= 0) {
+      reservationList[idx] = {
+        ...reservationList[idx],
+        date, time, category: cat, note, contact: email
+      };
+    }
+    sortAndRender(currentSortMode);
 
     setReadonlyMode(true);
     closeModal();
