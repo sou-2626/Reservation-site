@@ -110,9 +110,15 @@ async function init() {
         const label = r.time ? `${r.time} ${fullName}` : fullName;
         const badge = document.createElement('div');
         badge.className = 'company-name';
-        if (r.category === 'CG') badge.style.color = 'green';
-        else if (r.category === 'ゲーム') badge.style.color = 'blue';
-        else if (r.category === '両方') badge.style.color = 'red';
+        if (r.category.includes('ゲーム') && r.category.includes('CG')) {
+          badge.style.color = 'red';
+        } else if (r.category.includes('ゲーム')) {
+          badge.style.color = 'blue';
+        } else if (r.category.includes('CG')) {
+          badge.style.color = 'green';
+        }
+
+
         badge.textContent = label;
         if (r.time) badge.title = `${r.time} に予約`;
         dayEl.appendChild(badge);

@@ -1,5 +1,5 @@
 <?php
-// api.php - SQLite対応（完全版・相対パス・calendar.js対応）
+// api.php - SQLite対応（完全版・相対パス・calendar.js対応・UTF-8メール対応・カテゴリ「両方」対応）
 header('Content-Type: application/json');
 date_default_timezone_set('Asia/Tokyo');
 
@@ -64,6 +64,17 @@ switch ($action) {
             break;
         }
 
+        // ✅ カテゴリ名変換（両方対応）
+        $category = $input['category'] ?? '';
+        if ($category === 'both' || $category === '両方') {
+            $category = 'ゲーム, CG';
+        } elseif ($category === 'game' || $category === 'ゲーム') {
+            $category = 'ゲーム';
+        } elseif ($category === 'cg' || $category === 'ＣＧ' || $category === 'CG') {
+            $category = 'CG';
+        }
+
+        // DBへ保存
         $stmt = $pdo->prepare("
             INSERT INTO reservations (name, contact, date, time, anonymous, category, note)
             VALUES (:name, :contact, :date, :time, :anonymous, :category, :note)
@@ -74,42 +85,61 @@ switch ($action) {
             ':date' => $input['date'] ?? '',
             ':time' => $input['time'] ?? '',
             ':anonymous' => !empty($input['anonymous']) ? 'はい' : 'いいえ',
-            ':category' => $input['category'] ?? '',
+            ':category' => $category,
             ':note' => $input['note'] ?? ''
         ]);
 
-        // ---- ここから追加 ----
+        // ==========================
+        // 💌 メール送信（UTF-8対応）
+        // ==========================
+        mb_language("Japanese");
+        mb_internal_encoding("UTF-8");
+
+        // 送信元を自動判定
+        $domain = $_SERVER['SERVER_NAME'] ?? '';
+        if (strpos($domain, 'flat-amami-7790.fool.jp') !== false) {
+            $from = 'no-reply@flat-amami-7790.fool.jp';
+        } elseif (!empty($domain)) {
+            $from = "no-reply@{$domain}";
+        } else {
+            $from = 'no-reply@localhost';
+        }
+
+        $headers = "From: {$from}\r\n";
+        $headers .= "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        $headers .= "Content-Transfer-Encoding: 8bit\r\n";
+
+        // --- 予約者へのメール ---
         $userEmail = $input['contact'] ?? '';
         if (filter_var($userEmail, FILTER_VALIDATE_EMAIL)) {
             $subject = "【予約完了】ご予約を受け付けました";
             $message = "この度はご予約ありがとうございます。\n\n"
-                . "以下の内容でご予約を受け付けました。\n\n"
-                . "企業名：{$input['name']}\n"
-                . "日付：{$input['date']}\n"
-                . "時間：{$input['time']}\n"
-                . "カテゴリ：{$input['category']}\n"
-                . "備考：{$input['note']}\n\n"
-                . "このメールは自動送信です。";
-            $headers = "From: no-reply@flat-amami-7790.fool.jp\r\n";
-            @mail($userEmail, $subject, $message, $headers);
+                     . "以下の内容でご予約を受け付けました。\n\n"
+                     . "企業名：{$input['name']}\n"
+                     . "日付：{$input['date']}\n"
+                     . "時間：{$input['time']}\n"
+                     . "カテゴリ：{$category}\n"
+                     . "備考：{$input['note']}\n\n"
+                     . "このメールは自動送信です。";
+            mb_send_mail($userEmail, $subject, $message, $headers);
         }
 
-        // 管理者にも通知（admin_mailテーブル内）
+        // --- 管理者へのメール ---
         $adminList = $pdo->query("SELECT email FROM admin_mail")->fetchAll(PDO::FETCH_COLUMN);
         foreach ($adminList as $adminEmail) {
             if (filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
                 $subject = "【予約通知】新しい予約が入りました";
                 $message = "以下の内容で新しい予約が登録されました。\n\n"
-                    . "企業名：{$input['name']}\n"
-                    . "日付：{$input['date']}\n"
-                    . "時間：{$input['time']}\n"
-                    . "カテゴリ：{$input['category']}\n"
-                    . "備考：{$input['note']}";
-                $headers = "From: no-reply@flat-amami-7790.fool.jp\r\n";
-                @mail($adminEmail, $subject, $message, $headers);
+                         . "企業名：{$input['name']}\n"
+                         . "日付：{$input['date']}\n"
+                         . "時間：{$input['time']}\n"
+                         . "カテゴリ：{$category}\n"
+                         . "備考：{$input['note']}\n\n"
+                         . "管理画面で内容をご確認ください。";
+                mb_send_mail($adminEmail, $subject, $message, $headers);
             }
         }
-        // ---- 追加ここまで ----
 
         echo json_encode(['ok' => true, 'id' => $pdo->lastInsertId()]);
         break;
@@ -224,3 +254,4 @@ switch ($action) {
     default:
         echo json_encode(['error' => "未対応のアクションです: {$action}"]);
 }
+?>
