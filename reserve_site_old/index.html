@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約カレンダー</title>
+
+  <!-- 共通スタイル -->
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/components/calendar.css">
+  <link rel="stylesheet" href="css/pages/index.css">
+</head>
+
+<body>
+  <main class="page">
+    <h1>予約カレンダー</h1>
+
+    <!-- 管理者ログインボタン -->
+    <div class="top-right-btn">
+      <button class="btn btn-secondary" type="button" onclick="goToAdminLogin()">管理者ログイン</button>
+    </div>
+
+    <!-- 月の表示と移動ボタン -->
+    <div id="month-control" class="month-control">
+      <button id="prev-month" class="btn btn-secondary" type="button">◀</button>
+      <span id="current-month" class="month-label"></span>
+      <button id="next-month" class="btn btn-secondary" type="button">▶</button>
+    </div>
+
+    <!-- 曜日ラベル -->
+    <div class="calendar calendar-header">
+      <div>日</div>
+      <div>月</div>
+      <div>火</div>
+      <div>水</div>
+      <div>木</div>
+      <div>金</div>
+      <div>土</div>
+    </div>
+
+    <!-- カレンダー表示 -->
+    <div id="calendar" class="calendar"></div>
+
+    <p class="selected-date">日付を選択してください</p>
+
+    <!-- 予約フォーム -->
+    <section class="reservation-form section">
+      <form id="form" novalidate>
+        <input type="text" id="company" placeholder="企業名" required><br>
+        <label for="email">メールアドレス:</label>
+        <input type="email" id="email" placeholder="example@example.com" required><br>
+
+        <label>時間帯:</label>
+        <select id="time" required>
+          <option value="">選択してください</option>
+          <option value="午前">10:00〜12:00（午前）</option>
+          <option value="午後">14:00〜17:00（午後）</option>
+        </select><br>
+
+        <div class="anonymous-row">
+          <label for="anonymous">匿名で予約：</label>
+          <input type="checkbox" id="anonymous">
+        </div>
+
+        <label>カテゴリ:</label>
+        <select id="category" required>
+          <option value="">選択してください</option>
+          <option value="ゲーム">ゲーム</option>
+          <option value="CG">CG</option>
+          <option value="両方">両方</option>
+        </select><br>
+
+        <textarea id="note" rows="3" cols="30" placeholder="備考"></textarea><br>
+
+        <button type="submit" class="btn">予約する</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <button class="btn btn-secondary" type="button" onclick="logout()">ログアウト</button>
+  </footer>
+
+  <script>
+    function logout() {
+      sessionStorage.removeItem("loggedIn");
+      location.href = "login.html";
+    }
+    function goToAdminLogin() {
+      location.href = "admin_login.html";
+    }
+    (function () {
+      try {
+        if (sessionStorage.getItem('loggedIn') !== 'true') {
+          location.replace('login.html');
+        }
+      } catch {
+        location.replace('login.html');
+      }
+    })();
+  </script>
+
+  <script type="module" src="js/pages/calendar.js"></script>
+</body>
+
+</html>

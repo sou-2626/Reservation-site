@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>管理画面</title>
+
+  <!-- 共通CSS -->
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/pages/admin_dashboard.css">
+
+  <!-- 🚧 ページ入場ガード（未ログイン or 非管理者なら即リダイレクト） -->
+  <script>
+    (() => {
+      try {
+        const role = sessionStorage.getItem('role');
+        const logged = sessionStorage.getItem('loggedIn');
+        if (role !== 'admin' || logged !== 'true') {
+          location.replace('admin_login.html');
+        }
+      } catch {
+        location.replace('admin_login.html');
+      }
+    })();
+  </script>
+</head>
+
+<body>
+  <main class="dashboard">
+    <h1>管理メニュー</h1>
+
+    <!-- 🔹 管理メニュー一覧 -->
+    <div class="menu">
+      <button data-go="admin_manage.html">予約不可日設定</button>
+      <button data-go="reservations_list.html">予約一覧を見る</button>
+      <button data-go="account_settings.html">アカウント設定</button>
+      <button data-go="admin_mail.html">管理メール一覧</button>
+    </div>
+
+    <!-- 区切り線 -->
+    <hr style="margin: 32px 0;">
+
+    <!-- 🔹 管理操作ボタン -->
+    <div class="actions">
+      <button id="remind-btn" class="remind">リマインド一斉送信</button>
+      <button id="logout-btn" class="logout">ログアウト</button>
+    </div>
+  </main>
+
+  <!-- 外部JS -->
+  <script type="module" src="js/pages/admin_dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>予約不可日管理</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/common.css" />
+  <link rel="stylesheet" href="css/components/calendar.css" />
+  <link rel="stylesheet" href="css/pages/admin_manage.css" />
+</head>
+
+<body>
+  <main class="page">
+    <h1>予約不可日管理</h1>
+
+    <div class="control-buttons">
+      <button class="btn" onclick="showBlockedList()">予約不可日一覧を表示</button>
+    </div>
+
+    <div class="month-control">
+      <button id="prev-month" class="btn btn-secondary" type="button">◀</button>
+      <span id="current-month" class="month-label"></span>
+      <button id="next-month" class="btn btn-secondary" type="button">▶</button>
+    </div>
+
+    <div class="calendar calendar-header">
+      <div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div>
+    </div>
+
+    <div id="multi-calendar" class="calendar"></div>
+
+    <div class="action-area">
+      <button class="btn" onclick="submitSelectedBlockedDates()">選択した日を予約不可にする</button>
+      <button class="btn btn-secondary" onclick="submitUnblockedDates()">選択した予約不可日を解除する</button>
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    <button class="btn btn-secondary" onclick="window.location.href='admin_dashboard.html'">管理画面に戻る</button>
+  </footer>
+
+  <!-- モーダル（hidden方式） -->
+  <div id="blocked-modal" class="overlay hidden" onclick="hideBlockedList(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <h3>予約不可日一覧</h3>
+      <ul id="blocked-list"></ul>
+      <button class="btn btn-secondary" onclick="hideBlockedList()">閉じる</button>
+    </div>
+  </div>
+
+  <script type="module" src="js/pages/admin_manage.js"></script>
+</body>
+</html>

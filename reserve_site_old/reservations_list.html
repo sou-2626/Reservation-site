@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>予約一覧</title>
+  <link rel="stylesheet" href="css/pages/reservations_list.css">
+  <link rel="stylesheet" href="css/common.css">
+  <!-- ✅ 入場ガード（未ログイン or 非管理者ならログイン画面へ） -->
+  <script>
+    (function () {
+      try {
+        const role = sessionStorage.getItem('role');
+        const logged = sessionStorage.getItem('loggedIn');
+        if (role !== 'admin' || logged !== 'true') {
+          location.replace('admin_login.html');
+        }
+      } catch {
+        location.replace('admin_login.html');
+      }
+    })();
+  </script>
+</head>
+
+<body>
+  <h1>現在の予約一覧</h1>
+  <!-- ▼ ソート機能 -->
+  <div class="sort-controls" style="margin:10px 0;">
+    <label>並び替え：</label>
+    <select id="sort-select">
+      <option value="date-asc">日付 昇順（古い→新しい）</option>
+      <option value="date-desc">日付 降順（新しい→古い）</option>
+      <option value="cat-custom">カテゴリ（ゲーム→CG→両方）</option>
+    </select>
+  </div>
+
+  <div id="msg">読み込み中…</div>
+
+  <table id="reservation-table">
+    <colgroup>
+      <col style="width:120px;"> <!-- 日付 -->
+      <col style="width:110px;"> <!-- 時間 -->
+      <col> <!-- 企業名 -->
+      <col style="width:72px;"> <!-- 匿名 -->
+      <col style="width:100px;"> <!-- カテゴリ -->
+      <col style="width:110px;"> <!-- 備考 -->
+      <col style="width:164px;"> <!-- 操作 -->
+    </colgroup>
+    <thead>
+      <tr>
+        <th>日付</th>
+        <th>時間</th>
+        <th>企業名</th>
+        <th>匿名</th>
+        <th>カテゴリ</th>
+        <th>備考</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div style="margin-top:16px;">
+    <button type="button" class="btn" onclick="location.href='admin_dashboard.html'">管理画面に戻る</button>
+  </div>
+
+  <!-- ✅ モーダル（予約内容の確認・編集） -->
+  <div id="modal-backdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+      <h2 id="edit-title">予約の確認</h2>
+
+      <div class="row"><label>企業名</label>
+        <div><span id="m-name" class="readonly"></span></div>
+      </div>
+      <div class="row"><label>匿名</label>
+        <div><span id="m-anon" class="readonly"></span></div>
+      </div>
+      <div class="row"><label for="m-email">メールアドレス</label><input id="m-email" type="email" class="readonly" readonly />
+      </div>
+      <div class="row"><label for="m-date">日付</label><input id="m-date" type="date" class="readonly" readonly /></div>
+
+      <div class="row">
+        <label>時間</label>
+        <div class="radio-row">
+          <label><input type="radio" name="m-time" value="午前" disabled> 午前</label>
+          <label><input type="radio" name="m-time" value="午後" disabled> 午後</label>
+          <label><input type="radio" name="m-time" value="_custom" disabled> その他</label>
+          <input id="m-time-custom" type="text" class="hidden readonly" readonly />
+        </div>
+      </div>
+
+      <div class="row">
+        <label for="m-cat">カテゴリ</label>
+        <select id="m-cat" class="readonly" disabled>
+          <option value=""></option>
+          <option value="CG">CG</option>
+          <option value="ゲーム">ゲーム</option>
+          <option value="両方">両方</option>
+        </select>
+      </div>
+
+      <div class="row"><label for="m-note">備考</label><textarea id="m-note" class="readonly" readonly></textarea></div>
+
+      <div class="actions">
+        <button id="m-edit" class="btn btn-secondary">編集する</button>
+        <button id="m-save" class="btn hidden">保存</button>
+        <button id="m-cancel" class="btn btn-secondary">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ 外部JS -->
+  <script type="module" src="js/pages/reservations_list.js"></script>
+</body>
+
+</html>

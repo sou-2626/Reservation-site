@@ -1,0 +1,97 @@
+.dashboard {
+  max-width: 480px;
+  margin: 60px auto;
+  text-align: center;
+}
+
+/* 見出し */
+.dashboard h1 {
+  font-size: 24px;
+  margin-bottom: 32px;
+  color: var(--fg);
+}
+
+/* メニュー本体 */
+.dashboard .menu {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 各メニューボタン：白ベース + 黒文字 */
+.dashboard .menu button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #111;
+  font-weight: 600;
+  cursor: pointer;
+  filter: none;
+  transition: background 0.2s ease, transform 0.02s ease;
+}
+
+/* ホバー時も読みやすいまま */
+.dashboard .menu button:hover {
+  background: #f5f5f5;
+  filter: none;
+}
+
+.dashboard .menu button:active {
+  transform: translateY(1px);
+}
+
+/* ログアウトボタン：白に統一 */
+.dashboard .logout {
+  margin-top: 40px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #111;
+  font-weight: 600;
+  cursor: pointer;
+  filter: none;
+  transition: background 0.2s ease, transform 0.02s ease;
+}
+
+.dashboard .logout:hover {
+  background: #f5f5f5;
+  filter: none;
+}
+
+.dashboard .logout:active {
+  transform: translateY(1px);
+}
+
+
+/* 区切り線下のボタンを中央配置にする */
+.dashboard .actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* リマインド送信ボタン（少し強調） */
+.dashboard .remind {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fafafa; /* 白より少しグレーで差別化 */
+  color: #111;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.02s ease;
+}
+
+.dashboard .remind:hover {
+  background: #f0f0f0;
+}
+
+.dashboard .remind:active {
+  transform: translateY(1px);
+}

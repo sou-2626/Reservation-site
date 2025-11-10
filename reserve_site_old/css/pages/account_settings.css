@@ -1,0 +1,40 @@
+/* ページタイトル */
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* 各セクション（共通.sectionがベース） */
+.section {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 16px 0;
+  border-top: 1px solid #eee;
+}
+.section:first-of-type {
+  border-top: 0;
+}
+
+/* 入力幅を狭める（commonよりコンパクト） */
+input[type="text"],
+input[type="password"] {
+  width: min(100%, 320px);
+}
+
+/* 保存ボタン */
+button {
+  margin-top: 10px;
+  padding: 8px 12px;
+}
+
+/* 「管理画面に戻る」ボタンを中央寄せ */
+#back-btn {
+  display: block;
+  margin: 30px auto 0;
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+#back-btn:hover {
+  background: #f7f7f7;
+}
