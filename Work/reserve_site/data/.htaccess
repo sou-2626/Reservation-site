@@ -1,4 +1,0 @@
-# / 外部から見えないようにする
-<Files "*">
-  Require all denied
-</Files>
