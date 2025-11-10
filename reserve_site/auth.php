@@ -33,6 +33,13 @@ try {
 
 $action = $_GET['action'] ?? '';
 
+ // ここを追加（Ping応答）
+if ($action === 'ping') {
+    echo json_encode(['ok' => true]);
+    exit;
+}
+
+
 switch ($action) {
     // 管理画面・ログイン前のID確認
     case 'get_ids':
